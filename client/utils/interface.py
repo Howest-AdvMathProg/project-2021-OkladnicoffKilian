@@ -106,8 +106,7 @@ class Interface(Frame):
         self.buttons = []
 
         # content
-        Label(self, text="Hi").grid(row=0)
-        
+        Label(self, text="Hi").grid(row=0)        
 
     # method called when window is closed
     def window_closed(self):
