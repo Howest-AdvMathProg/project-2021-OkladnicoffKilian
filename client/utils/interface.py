@@ -1,6 +1,7 @@
 from tkinter import *
 import logging
 import re
+import json
 from .client import Client
 
 class Interface(Frame):
@@ -21,24 +22,34 @@ class Interface(Frame):
         self.pack(fill=BOTH, expand=1)
 
         # content
+        self.labels = []
+        self.entries = []
+        self.buttons = []
         # full name
-        Label(self, text="Full name").grid(row=0)
+        label = Label(self, text="Full name").grid(row=0)
+        self.labels.append(label)
         self.entry_name = Entry(self, width=40)
         self.entry_name.grid(row=0, column=1, sticky=E+W, pady=(5,5))
+        self.entries.append(self.entry_name)
         # nickname
-        Label(self, text="Nickname").grid(row=1)
+        label = Label(self, text="Nickname").grid(row=1)
+        self.labels.append(label)
         self.entry_nickname = Entry(self, width=40)
         self.entry_nickname.grid(row=1, column=1, sticky=E+W, pady=(5,5))
+        self.entries.append(self.entry_nickname)
         # email
-        Label(self, text="Email").grid(row=2)
+        label = Label(self, text="Email").grid(row=2)
+        self.labels.append(label)
         self.entry_email = Entry(self, width=40)
         self.entry_email.grid(row=2, column=1, sticky=E+W, pady=(5,5))
+        self.entries.append(self.entry_email)
         # login error display
         self.login_error = StringVar()
-        Label(self, textvariable=self.login_error).grid(row=3,column=1,pady=(5,5))
+        self.labels.append(Label(self, textvariable=self.login_error).grid(row=3,column=1,pady=(5,5)))
         # connect
         self.login_button = Button(self, text="Login", command=self.login)
         self.login_button.grid(row=4, columnspan=3, pady=(5,5), padx=(5,5), sticky=N+S+E+W)
+        self.buttons.append(self.login_button)
 
         # grid config
         Grid.rowconfigure(self, 4, weight=1)
@@ -56,7 +67,7 @@ class Interface(Frame):
 
                     # send user login data
                     data = {"Full name": self.entry_name.get(), "Nickname": self.entry_nickname.get(), "Email": self.entry_email.get()}
-                    self.client.send_data(data)
+                    self.client.send_data(json.dumps(data))
 
                     # receive user id
                     # if self.client.receive_data():
@@ -89,12 +100,18 @@ class Interface(Frame):
 
         # reset window
         self.master.title("Kepler")
-        self.entry_name.destroy()
-        self.entry_nickname.destroy()
-        self.entry_email.destroy()
+        # for item in self.labels:
+        #     item.master.destroy()
+        for item in self.entries:
+            item.destroy()
+        for item in self.buttons:
+            item.destroy()
+
+        self.labels, self.entries, self.buttons = []
+
 
         # content
-        Label(self, text="Snelheid (km/u):").grid(row=0)
+        Label(self, text="test").grid(row=0)
         
 
     # method called when window is closed
