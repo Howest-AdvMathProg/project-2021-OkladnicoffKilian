@@ -1,18 +1,15 @@
 from tkinter import *
 import logging
-import socket
 import re
+from .client import Client
 
 class Interface(Frame):
     def __init__(self, master=None):
         # set variables
         Frame.__init__(self, master)
         self.master = master
-
-        # root = Tk()
-        # root.mainloop()
-
         self.master.protocol("WM_DELETE_WINDOW", self.window_closed)
+        self.client = Client(5000)
 
         # call login screen
         self.login_window()
@@ -54,7 +51,8 @@ class Interface(Frame):
                 if re.match('([A-Za-z0-9.!#$%&*+\-/=?^_`{|}~]+@[A-Za-z0-9\-\.]+)', self.entry_email.get()):
                     logging.info("Login values valid")
 
-                    # create connection
+                    # create socket and connect
+                    self.client.connect()
 
                     # send user login data
 
@@ -76,8 +74,7 @@ class Interface(Frame):
     # method called when window is closed
     def window_closed(self):
         # close connection
-        # self.socket_to_server.close()
-        logging.info("Connection closed with server")
+        self.client.disconnect()
 
         # close window
         self.master.destroy()
