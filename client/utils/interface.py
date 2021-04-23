@@ -36,9 +36,12 @@ class Interface(Frame):
         Label(self, text="Email").grid(row=2)
         self.entry_email = Entry(self, width=40)
         self.entry_email.grid(row=2, column=1, sticky=E+W, pady=(5,5))
+        # login error display
+        self.login_error = StringVar()
+        Label(self, textvariable=self.login_error).grid(row=3,column=1,pady=(5,5))
         # connect
         self.login_button = Button(self, text="Login", command=self.login)
-        self.login_button.grid(row=3, columnspan=2, pady=(5,5), padx=(5,5), sticky=N+S+E+W)
+        self.login_button.grid(row=4, columnspan=3, pady=(5,5), padx=(5,5), sticky=N+S+E+W)
 
         # grid config
         Grid.rowconfigure(self, 4, weight=1)
@@ -50,6 +53,7 @@ class Interface(Frame):
             if self.entry_nickname.get():
                 if re.match('([A-Za-z0-9.!#$%&*+\-/=?^_`{|}~]+@[A-Za-z0-9\-\.]+)', self.entry_email.get()):
                     logging.info("Login values valid")
+
                     # create connection
 
                     # send user login data
@@ -57,12 +61,17 @@ class Interface(Frame):
                     # receive user id
 
                     # call main menu
+
+
                 else:
                     logging.error("Invalid email")
+                    self.login_error.set("Invalid email address")
             else:
                 logging.error("Invalid nickname: nickname cannot be empty")
+                self.login_error.set("Nickname cannot be empty")
         else:
             logging.error("Invalid name: full name cannot be empty")
+            self.login_error.set("Full name cannot be empty")
 
     # method called when window is closed
     def window_closed(self):
