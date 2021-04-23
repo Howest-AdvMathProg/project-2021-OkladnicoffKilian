@@ -2,9 +2,10 @@ import logging
 import socket
 
 class Client():
-    def __init__(self, port):
+    def __init__(self, port, host=socket.gethostname()):
         self.socket_to_server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.host = socket.gethostname()
+        # self.host = socket.gethostname()
+        self.host = host
         self.port = port
     
     def connect(self):
