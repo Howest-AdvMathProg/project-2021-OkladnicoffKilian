@@ -5,7 +5,7 @@ import socket
 from utils.interface import Interface
 
 # set logging level
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 root = Tk()
 app = Interface(root)

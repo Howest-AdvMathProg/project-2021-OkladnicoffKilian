@@ -1,27 +1,27 @@
 from utils import server, interface
 import logging
 import socket
-from time import sleep
-import threading
+import json
 
 logging.basicConfig(level=logging.DEBUG, format="%(levelname)s - %(msg)s")
-n_clients = 6
 
-def connect(sock):
+def on_connect(self, sc, addr):
     try:
-        sock.connect((socket.gethostname(), 5000))
-        counter = 0
-        max_count = 3
-        while counter < max_count:
-            sleep(5)
-            counter += 1
-        logging.info(f"Closing connection for {sock}")
+        io_stream = sc.makefile(mode='rw')
+        while True:
+            data = io_stream.readline().rstrip()
+            if self.is_socket_closed(self, sc):
+                break
+            if len(data) == 0:
+                continue
+            
+            self.log(logging.INFO, f"Received {data}")
+        self.log(logging.INFO, f"Disconnecting {addr}")
+    except KeyboardInterrupt:
+        import sys
+        sys.exit()
     except Exception as e:
-        logging.error(e.__str__())
-        
-try:
-    sockets = [socket.socket(socket.AF_INET, socket.SOCK_STREAM) for i in range(n_clients)]
-    threads = [threading.Thread(target=connect, args=(s,)) for s in sockets]
-    [t.start() for t in threads]
-except KeyboardInterrupt:
-    s.close()
+        raise e
+
+if __name__ == "__main__":
+    s = server.Server(on_connect)

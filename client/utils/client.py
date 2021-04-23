@@ -20,6 +20,7 @@ class Client():
         logging.info("Connection closed with server")
 
     def send_data(self, data):
+        logging.debug(f"Send data {data}")
         self.io_stream_server.write(f"{data}\n")
         self.io_stream_server.flush()
 

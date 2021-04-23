@@ -19,12 +19,19 @@ class Server:
         if level >= logging.ERROR:
             raise Exception(msg)
 
+    def remove_inactive(self):
+        while True:
+            for t in self.active_connections:
+                if not t.is_alive():
+                    self.active_connections.remove(t)
+
     def init(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.bind((self.addr, self.port))
         self.sock.listen(5)
         self.log(logging.INFO, f"Server up, listening on {self.addr}:{self.port}...")
-
+        threading.Thread(target=self.remove_inactive).start()
+        
         while True:
             self.log(logging.INFO, f"Listening for connections...")
             sock_client, addr = self.sock.accept()
@@ -33,18 +40,17 @@ class Server:
                 continue
             
             self.log(logging.INFO, f"Got connection from {addr}")
-            t = threading.Thread(target=self.on_connect, args=(self, sock_client, addr))
-            t.daemon = True
+            t = threading.Thread(target=self.on_connect, args=(self, sock_client, addr), daemon=True)
             self.active_connections.append(t)
             t.start()
         self.log(logging.INFO, "Server shutting down...")
         self.sock.close()
 
     @staticmethod
-    def is_socket_closed(server, sock: socket.socket) -> bool:
+    def is_socket_closed(server, sock):
         try:
             sock.setblocking(0)
-            data = sock.recv(16)
+            data = sock.recv(16, socket.MSG_PEEK)
             if len(data) == 0:
                 return True
         except BlockingIOError:
