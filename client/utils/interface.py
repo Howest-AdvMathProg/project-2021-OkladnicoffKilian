@@ -55,10 +55,14 @@ class Interface(Frame):
                     self.client.connect()
 
                     # send user login data
+                    self.client.send_data(self.entry_name.get())
+                    self.client.send_data(self.entry_nickname.get())
+                    self.client.send_data(self.entry_email.get())
 
                     # receive user id
-
-                    # call main menu
+                    if self.client.receive_data():
+                        # call main menu
+                        self.main_menu()
 
 
                 else:
@@ -70,6 +74,10 @@ class Interface(Frame):
         else:
             logging.error("Invalid name: full name cannot be empty")
             self.login_error.set("Full name cannot be empty")
+
+    # main menu
+    def main_menu(self):
+        pass
 
     # method called when window is closed
     def window_closed(self):
