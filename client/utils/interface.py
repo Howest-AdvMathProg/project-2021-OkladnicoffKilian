@@ -55,14 +55,13 @@ class Interface(Frame):
                     self.client.connect()
 
                     # send user login data
-                    self.client.send_data(self.entry_name.get())
-                    self.client.send_data(self.entry_nickname.get())
-                    self.client.send_data(self.entry_email.get())
+                    data = {"Full name": self.entry_name.get(), "Nickname": self.entry_nickname.get(), "Email": self.entry_email.get()}
+                    self.client.send_data(data)
 
                     # receive user id
-                    if self.client.receive_data():
+                    # if self.client.receive_data():
                         # call main menu
-                        self.main_menu()
+                    self.main_menu()
 
 
                 else:
@@ -77,7 +76,26 @@ class Interface(Frame):
 
     # main menu
     def main_menu(self):
-        pass
+        # # close login window
+        # self.master.destroy()
+
+        # # create new window
+        # self.master = Tk()
+        # self.master.title("Kepler")
+        # self.master.mainloop()
+
+        # self.pack(fill=BOTH, expand=1)
+
+
+        # reset window
+        self.master.title("Kepler")
+        self.entry_name.destroy()
+        self.entry_nickname.destroy()
+        self.entry_email.destroy()
+
+        # content
+        Label(self, text="Snelheid (km/u):").grid(row=0)
+        
 
     # method called when window is closed
     def window_closed(self):

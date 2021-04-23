@@ -23,5 +23,5 @@ class Client():
         self.io_stream_server.flush()
 
     def receive_data(self):
-        result = self.io_stream_server.readline().rsplit("\n")
+        result = self.io_stream_server.readline().rstrip("\n")
         return result
