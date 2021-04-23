@@ -1,6 +1,7 @@
 from tkinter import *
 import logging
 import socket
+import re
 
 class Interface(Frame):
     def __init__(self, master=None):
@@ -44,14 +45,24 @@ class Interface(Frame):
         Grid.columnconfigure(self, 1, weight=1)
 
     def login(self):
-        pass
-        # create connection
+        # validate inputs
+        if self.entry_name.get():
+            if self.entry_nickname.get():
+                if re.match('([A-Za-z0-9.!#$%&*+\-/=?^_`{|}~]+@[A-Za-z0-9\-\.]+)', self.entry_email.get()):
+                    logging.info("Login values valid")
+                    # create connection
 
-        # send user login data
+                    # send user login data
 
-        # receive user id
+                    # receive user id
 
-        # call main menu
+                    # call main menu
+                else:
+                    logging.error("Invalid email")
+            else:
+                logging.error("Invalid nickname: nickname cannot be empty")
+        else:
+            logging.error("Invalid name: full name cannot be empty")
 
     # method called when window is closed
     def window_closed(self):
