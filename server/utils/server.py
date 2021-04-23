@@ -5,6 +5,7 @@ import multiprocessing
 
 class Server:
     logger = logging.Logger(name="Server")
+    active_connections = []
 
     def __init__(self, conn_func, addr=socket.gethostname(), port=5000, max_clients:int=2):
         self.init_logger()
@@ -27,9 +28,15 @@ class Server:
         while True:
             self.log(logging.INFO, f"Listening for connections...")
             sock_client, addr = self.sock.accept()
+            if len(self.active_connections) >= self.max_clients:
+                sock_client.close()
+                continue
+            
             self.log(logging.INFO, f"Got connection from {addr}")
-            threading.Thread(target=self.on_connect, args=(self, sock_client, addr)).daemon.start()
-
+            t = threading.Thread(target=self.on_connect, args=(self, sock_client, addr))
+            t.daemon = True
+            self.active_connections.append(t)
+            t.start()
         self.log(logging.INFO, "Server shutting down...")
         self.sock.close()
 
