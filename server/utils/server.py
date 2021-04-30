@@ -2,34 +2,17 @@ import socket
 import logging 
 import threading
 import multiprocessing
-
-class ServerLogger():
-    def __init__(self, name):
-        self.logger = logging.Logger(name)
-        self.init_logger()
-
-    def log(self, level, msg):
-        self.logger.log(level, msg)
-        if level >= logging.ERROR:
-            raise Exception(msg)
-
-    def init_logger(self):
-        # self.logger.setLevel(logging.getLogger("root").getEffectiveLevel())
-        formatter = logging.Formatter("[%(asctime)s] %(name)s:%(levelname)s [%(msg)s]")
-        sh = logging.StreamHandler()
-        sh.setFormatter(formatter)
-        self.logger.addHandler(sh)
-
+from utils.logger import Logger
 
 class Server_Connection(threading.Thread):
     def __init__(self, connect_func, sock, addr):
         try:
             self.__class__._logger
         except:
-            self.__class__._logger = ServerLogger("ServerConnection")
+            self.__class__._logger = Logger("ServerConnection")
 
+        self.alive = True
         threading.Thread.__init__(self, daemon=True)
-        Server.active_connections.append(self)
         self.connect_func = connect_func
         self.sock = sock
         self.addr = addr
@@ -37,10 +20,16 @@ class Server_Connection(threading.Thread):
     def run(self):
         try:
             self.connect_func(self.sock, self.addr)
-        except:
+        except Exception as e:
             self._logger.log(logging.ERROR, "Connection encountered an error")
+            self._logger.log(logging.DEBUG, f"Error: {e}")
         finally:
             self.sock.close()
+            self._logger.log(logging.INFO, f"Closing connection with {self.addr}")
+            self.alive = False
+
+    def is_alive(self):
+        return self.alive
 
 class Server():
     active_connections = []
@@ -49,7 +38,7 @@ class Server():
         try:
             self.__class__._logger
         except:
-            self.__class__._logger = ServerLogger("Server")
+            self.__class__._logger = Logger("Server")
 
         self.max_clients = max_clients if isinstance(max_clients, int) else self._logger.log(logging.ERROR, "Expected type int for max_clients")
         self.on_connect = conn_func
@@ -59,8 +48,10 @@ class Server():
     def remove_inactive(self):
         while True:
             for t in self.active_connections:
-                if not t.is_alive():
-                    self.active_connections.remove(t)
+                if t.is_alive():
+                    continue
+                self.active_connections.remove(t)
+                self._logger.log(logging.DEBUG, f"Active threads: {len(self.active_connections)}")
 
     def init(self):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -77,13 +68,15 @@ class Server():
                 continue
             
             self._logger.log(logging.INFO, f"Got connection from {addr}")
-            Server_Connection(self.on_connect, sock_client, addr).start()
+            conn = Server_Connection(self.on_connect, sock_client, addr)
+            self.active_connections.append(conn)
+            conn.start()
 
         self._logger.log(logging.INFO, "Server shutting down...")
         self.sock.close()
 
-    @classmethod
-    def is_socket_closed(cls, sock):
+    @staticmethod
+    def is_socket_closed(sock):
         try:
             sock.setblocking(0)
             data = sock.recv(16, socket.MSG_PEEK)
