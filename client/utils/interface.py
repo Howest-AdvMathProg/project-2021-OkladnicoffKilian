@@ -71,14 +71,16 @@ class Interface(Frame):
                     self.client.connect()
 
                     # send user login data
-                    data = {"Full name": self.entry_name.get(), "Nickname": self.entry_nickname.get(), "Email": self.entry_email.get()}
+                    data = {"fullname": self.entry_name.get(), "username": self.entry_nickname.get(), "email": self.entry_email.get()}
                     self.client.send_data(json.dumps(data))
 
                     # receive user id
-                    # if self.client.receive_data():
-                        # call main menu
+                    while True:
+                        sessid = self.client.receive_data()
+                        if len(sessid) > 0:
+                            break
+                    logging.info(f"received {sessid}")
                     self.main_menu()
-
 
                 else:
                     logging.error("Invalid email")

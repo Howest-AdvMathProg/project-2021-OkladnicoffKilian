@@ -3,21 +3,58 @@ import logging
 import threading
 import multiprocessing
 
-class Server:
-    logger = logging.Logger(name="Server")
+class ServerLogger():
+    def __init__(self, name):
+        self.logger = logging.Logger(name)
+        self.init_logger()
+
+    def log(self, level, msg):
+        self.logger.log(level, msg)
+        if level >= logging.ERROR:
+            raise Exception(msg)
+
+    def init_logger(self):
+        # self.logger.setLevel(logging.getLogger("root").getEffectiveLevel())
+        formatter = logging.Formatter("[%(asctime)s] %(name)s:%(levelname)s [%(msg)s]")
+        sh = logging.StreamHandler()
+        sh.setFormatter(formatter)
+        self.logger.addHandler(sh)
+
+
+class Server_Connection(threading.Thread):
+    def __init__(self, connect_func, sock, addr):
+        try:
+            self.__class__._logger
+        except:
+            self.__class__._logger = ServerLogger("ServerConnection")
+
+        threading.Thread.__init__(self, daemon=True)
+        Server.active_connections.append(self)
+        self.connect_func = connect_func
+        self.sock = sock
+        self.addr = addr
+
+    def run(self):
+        try:
+            self.connect_func(self.sock, self.addr)
+        except:
+            self._logger.log(logging.ERROR, "Connection encountered an error")
+        finally:
+            self.sock.close()
+
+class Server():
     active_connections = []
 
     def __init__(self, conn_func, addr=socket.gethostname(), port=5000, max_clients:int=2):
-        self.init_logger()
-        self.max_clients = max_clients if isinstance(max_clients, int) else self.log(logging.ERROR, "Expected type int for max_clients")
+        try:
+            self.__class__._logger
+        except:
+            self.__class__._logger = ServerLogger("Server")
+
+        self.max_clients = max_clients if isinstance(max_clients, int) else self._logger.log(logging.ERROR, "Expected type int for max_clients")
         self.on_connect = conn_func
         self.addr, self.port = addr, port
         self.init()
-
-    def log(self, level, msg):
-        self.logger.log(level=level, msg=msg)
-        if level >= logging.ERROR:
-            raise Exception(msg)
 
     def remove_inactive(self):
         while True:
@@ -29,25 +66,24 @@ class Server:
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.bind((self.addr, self.port))
         self.sock.listen(5)
-        self.log(logging.INFO, f"Server up, listening on {self.addr}:{self.port}...")
+        self._logger.log(logging.INFO, f"Server up, listening on {self.addr}:{self.port}...")
         threading.Thread(target=self.remove_inactive).start()
         
         while True:
-            self.log(logging.INFO, f"Listening for connections...")
+            self._logger.log(logging.INFO, f"Listening for connections...")
             sock_client, addr = self.sock.accept()
             if len(self.active_connections) >= self.max_clients:
                 sock_client.close()
                 continue
             
-            self.log(logging.INFO, f"Got connection from {addr}")
-            t = threading.Thread(target=self.on_connect, args=(self, sock_client, addr), daemon=True)
-            self.active_connections.append(t)
-            t.start()
-        self.log(logging.INFO, "Server shutting down...")
+            self._logger.log(logging.INFO, f"Got connection from {addr}")
+            Server_Connection(self.on_connect, sock_client, addr).start()
+
+        self._logger.log(logging.INFO, "Server shutting down...")
         self.sock.close()
 
-    @staticmethod
-    def is_socket_closed(server, sock):
+    @classmethod
+    def is_socket_closed(cls, sock):
         try:
             sock.setblocking(0)
             data = sock.recv(16, socket.MSG_PEEK)
@@ -58,29 +94,22 @@ class Server:
         except ConnectionResetError:
             return True 
         except Exception as e:
-            server.log(logging.CRITICAL, f"Unexpected exception when checking if a socket is closed: {e}")
+            cls._logger.log(logging.CRITICAL, f"Unexpected exception when checking if a socket is closed: {e}")
             return False
         return False
-
-    def init_logger(self):
-        self.logger.setLevel(logging.getLogger().getEffectiveLevel())
-        formatter = logging.Formatter("[%(asctime)s] %(name)s:%(levelname)s [%(msg)s]")
-        sh = logging.StreamHandler()
-        sh.setFormatter(formatter)
-        self.logger.addHandler(sh)
 
 if __name__ == "__main__":
     from time import sleep
     logging.basicConfig(level=logging.DEBUG, format="[%(levelname)s] %(msg)s")
 
-    def on_connect(self, sc, addr):
+    def on_connect(sc, addr):
         try:
             while True:
-                self.log(logging.DEBUG, f"On connect for client {addr}")
-                if Server.is_socket_closed(self, sc):
+                logging.log(logging.DEBUG, f"On connect for client {addr}")
+                if Server.is_socket_closed(sc):
                     break
                 sleep(2)
-            self.log(logging.DEBUG, f"Connection closed for {addr}")
+            logging.log(logging.DEBUG, f"Connection closed for {addr}")
         except Exception as e:
             raise e
 
