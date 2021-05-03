@@ -1,0 +1,76 @@
+import socket
+import util.logger as logger
+import threading
+import logging
+from time import sleep
+
+class Server:
+    class ClientHandler(threading.Thread):
+        active_connections = []
+        HEADERSIZE = 128
+        FORMAT = 'utf-8'
+
+        def __init__(self, sock, addr):
+            super().__init__(None, daemon=True)
+
+            try:
+                self.__class__.logger
+            except:
+                self.__class__.logger = logger.Logger("ClientHandler")
+
+            self.active_connections.append(self)
+            self.s = sock
+            self.addr = addr
+            self.connected = True
+
+        def receive(self):
+            msgsize = self.s.recv(self.HEADERSIZE).decode(self.FORMAT)
+            if msgsize:
+                msgsize = int(msgsize)
+                data = self.s.recv(msgsize).decode(self.FORMAT)
+                self.logger.log(logger.DEBUG, f"Received data from {self.addr}: {data}")
+
+        def check_closed(self):
+            while True:
+                if len(self.s.recv(16, socket.MSG_PEEK)) == 0:
+                    self.logger.log(logger.WARNING, "Client disconnected")
+                    break
+            self.active_connections.remove(self)
+            self.connected = False
+
+        def run(self):
+            threading.Thread(target=self.check_closed, daemon=True).start()
+            while self.connected:
+                self.receive()
+            self.logger.log(logger.INFO, "Closing socket...")
+
+    def __init__(self,host=socket.gethostbyname(socket.gethostname()), port=5000):
+        try:
+            self.__class__._logger
+        except:
+            self.__class__.logger = logger.Logger("Server")
+
+        self.hostname = host
+        self.port = port
+        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.start()
+
+    def log_active(self):
+        while True:
+            self.logger.log(logger.DEBUG, f"Active connections {len(self.ClientHandler.active_connections)}")
+            sleep(120)
+
+    def start(self):
+        self.s.bind((self.hostname, self.port))
+        self.s.listen(5)
+        self.logger.log(logger.INFO, "Server online, listening for connections...")
+        threading.Thread(target=self.log_active, daemon=True).start()
+
+        while True:
+            sock_client, addr = self.s.accept()
+            self.logger.log(logger.INFO, f"Got connection from {addr}")
+            conn = self.ClientHandler(sock_client, addr).start()
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.DEBUG, format="%(levelname)s --> %(msg)s")
+    server = Server()
