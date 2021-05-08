@@ -65,34 +65,40 @@ class Interface(Frame):
 
     def login(self):
         # validate inputs
-        if self.entry_name.get():
-            if self.entry_nickname.get():
-                if re.match('([A-Za-z0-9.!#$%&*+\-/=?^_`{|}~]+@[A-Za-z0-9\-\.]+)', self.entry_email.get()):
-                    logging.info("Login values valid")
+        # check if not empty
+        if self.entry_name.get() and self.entry_nickname.get() and self.entry_email.get():
+            print(re.findall('[^a-zA-ZÀ-ÖØ-öø-ÿ\d\s:-]+', self.entry_name.get()))
+            if not re.findall('[^a-zA-ZÀ-ÖØ-öø-ÿ\d\s:-]+', self.entry_name.get()):
+                if not re.findall('[^a-zA-ZÀ-ÖØ-öø-ÿ\d\s:-]+', self.entry_nickname.get()):
+                    if re.match('([A-Za-z0-9.!#$%&*+\-/=?^_`{|}~]+@[A-Za-z0-9\-\.]+)', self.entry_email.get()):
+                        logging.info("Login values valid")
 
-                    # create socket and connect
-                    self.client.connect()
+                        # create socket and connect
+                        self.client.connect()
 
-                    # send user login data
-                    data = {"fullname": self.entry_name.get(), "username": self.entry_nickname.get(), "email": self.entry_email.get()}
-                    self.client.send_data(json.dumps(data))
+                        # send user login data
+                        data = f"login?fullname={self.entry_name.get()}&username={self.entry_nickname.get()}&email={self.entry_email.get()}"
+                        self.client.send_data(data)
 
-                    # receive user id
-                    # if self.client.receive_data():
-                        # call main menu
-                    # load new window
-                    self.reset_window()
-                    self.main_menu()
+                        # receive user id
+                        # if self.client.receive_data():
+                            # call main menu
+                        # load new window
+                        self.reset_window()
+                        self.main_menu()
 
+                    else:
+                        logging.error("Invalid email")
+                        self.login_error.set("Invalid email address")
                 else:
-                    logging.error("Invalid email")
-                    self.login_error.set("Invalid email address")
+                    logging.error("Invalid nickname")
+                    self.login_error.set("Invalid nickname")
             else:
-                logging.error("Invalid nickname: nickname cannot be empty")
-                self.login_error.set("Nickname cannot be empty")
+                logging.error("Invalid name")
+                self.login_error.set("Invalid full name")
         else:
-            logging.error("Invalid name: full name cannot be empty")
-            self.login_error.set("Full name cannot be empty")
+            logging.error("All fields must be filled in")
+            self.login_error.set("All fields must be filled in")
 
     # main menu
     def main_menu(self):

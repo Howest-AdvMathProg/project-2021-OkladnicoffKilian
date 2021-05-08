@@ -10,6 +10,7 @@ class Client():
         # self.host = socket.gethostname()
         self.host = host
         self.port = port
+        self.session_id = None
     
     def connect(self):
         self.socket_to_server.connect((self.host, self.port))
@@ -23,13 +24,19 @@ class Client():
         logging.info("Connection closed with server")
 
     def send_data(self, data):
-        logging.debug(f"Sending data {data}")
+        # if client has a sessionid it needs to be send aswell
+        logging.debug(f"Session id: {self.session_id}")
+        if self.session_id != None:
+            data += f"&session_id={self.session_id}"
+            
         data = data.encode(encoding_format)
 
         # calculate msg length
         msglength = len(data)
         msglength = str(msglength).encode(encoding_format)
         msglength += b' ' * (headersize - len(msglength))
+
+        logging.debug(f"Sending data {data}")
 
         # send msglength and message
         self.socket_to_server.send(msglength)
@@ -42,3 +49,6 @@ class Client():
         data = self.socket_to_server.recv()
 
         return data
+
+    def session_id(self,value):
+        self.session_id = value
