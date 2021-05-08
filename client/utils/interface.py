@@ -1,8 +1,11 @@
 from tkinter import *
+from tkinter import ttk
 import logging
 import re
 import json
 from .client import Client
+
+functions = ["Seach kepler name", "scatterplot", "false positives vs true positives", "random kepler object"]
 
 class Interface(Frame):
     def __init__(self, master=None):
@@ -12,6 +15,12 @@ class Interface(Frame):
         self.master.protocol("WM_DELETE_WINDOW", self.window_closed)
         self.client = Client(5000)
 
+        self.labels = []
+        self.entries = []
+        self.buttons = []
+
+        self.pack(fill=BOTH, expand=1)
+
         # call login screen
         self.login_window()
 
@@ -19,12 +28,6 @@ class Interface(Frame):
     def login_window(self):
         self.master.title("Login")
 
-        self.pack(fill=BOTH, expand=1)
-
-        # content
-        self.labels = []
-        self.entries = []
-        self.buttons = []
         # full name
         label = Label(self, text="Full name")
         label.grid(row=0)
@@ -75,11 +78,10 @@ class Interface(Frame):
                     self.client.send_data(json.dumps(data))
 
                     # receive user id
-                    while True:
-                        sessid = self.client.receive_data()
-                        if len(sessid) > 0:
-                            break
-                    logging.info(f"received {sessid}")
+                    # if self.client.receive_data():
+                        # call main menu
+                    # load new window
+                    self.reset_window()
                     self.main_menu()
 
                 else:
@@ -94,7 +96,43 @@ class Interface(Frame):
 
     # main menu
     def main_menu(self):
-        # reset window
+        Label(self, text="Connected to server").grid(row=0,column=0,padx=5)
+        # logout button
+        logout_button = Button(self, text="Logout", command=self.window_closed)
+        logout_button.grid(row=0, column=3, pady=(5,5), padx=(5,5), sticky=N+S+E+W)
+
+        # create parent for tabs
+        tab_controller = ttk.Notebook(self.master)
+
+        # create generals for each function
+        for i in range(0, len(functions)-1):
+            # create tab
+            tab = ttk.Frame(tab_controller)
+            tab_controller.add(tab, text=f"Tab {i}")
+
+            # button to send server request
+            ttk.Label(tab, text=f"Function {i}: {functions[i]}").grid(column=0,row=0,padx=15,pady=10)
+            ttk.Button(tab, text="Command", command=lambda i=i: self.function_request(i)).grid(column=1,row=0,padx=15,pady=10)
+
+        # visualise tabs
+        tab_controller.pack(expand=1, fill="both")
+
+    # function request
+    def function_request(self, tab_number):
+        logging.debug(f"Request came from tab {tab_number}")
+        logging.debug(f"Function: {functions[tab_number]}")
+
+    # method called when window is closed
+    def window_closed(self):
+        # close connection
+        self.client.disconnect()
+
+        # close window
+        self.master.destroy()
+        exit()
+
+    # reset window contents
+    def reset_window(self):
         self.master.title("Kepler")
         for item in self.labels:
             item.destroy()
@@ -106,15 +144,3 @@ class Interface(Frame):
         self.labels = []
         self.entries = []
         self.buttons = []
-
-        # content
-        Label(self, text="Hi").grid(row=0)        
-
-    # method called when window is closed
-    def window_closed(self):
-        # close connection
-        self.client.disconnect()
-
-        # close window
-        self.master.destroy()
-        exit()
