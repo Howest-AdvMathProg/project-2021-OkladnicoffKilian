@@ -75,11 +75,8 @@ class Interface(Frame):
                     self.client.send_data(json.dumps(data))
 
                     # receive user id
-                    while True:
-                        sessid = self.client.receive_data()
-                        if len(sessid) > 0:
-                            break
-                    logging.info(f"received {sessid}")
+                    # if self.client.receive_data():
+                        # call main menu
                     self.main_menu()
 
                 else:
