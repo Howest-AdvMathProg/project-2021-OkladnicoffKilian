@@ -30,38 +30,38 @@ class Interface(Frame):
 
         # full name
         label = Label(self, text="Full name")
-        label.grid(row=0)
+        label.grid(row=0,padx=5,pady=5,sticky=W)
         self.labels.append(label)
         self.entry_name = Entry(self, width=40)
-        self.entry_name.grid(row=0, column=1, sticky=E+W, pady=(5,5))
+        self.entry_name.grid(row=0, column=1, sticky=E+W, pady=(10,5),padx=(0,5))
         self.entries.append(self.entry_name)
         # nickname
         label = Label(self, text="Nickname")
-        label.grid(row=1)
+        label.grid(row=1,padx=5,pady=5,sticky=W)
         self.labels.append(label)
         self.entry_nickname = Entry(self, width=40)
-        self.entry_nickname.grid(row=1, column=1, sticky=E+W, pady=(5,5))
+        self.entry_nickname.grid(row=1, column=1, sticky=E+W, pady=(5,5),padx=(0,5))
         self.entries.append(self.entry_nickname)
         # email
         label = Label(self, text="Email")
-        label.grid(row=2)
+        label.grid(row=2,padx=5,pady=5,sticky=W)
         self.labels.append(label)
         self.entry_email = Entry(self, width=40)
-        self.entry_email.grid(row=2, column=1, sticky=E+W, pady=(5,5))
+        self.entry_email.grid(row=2, column=1, sticky=E+W, pady=(5,5),padx=(0,5))
         self.entries.append(self.entry_email)
         # login error display
         self.login_error = StringVar()
         label = Label(self, textvariable=self.login_error)
-        label.grid(row=3,column=1,pady=(5,5))
+        label.grid(row=3,column=0,columnspan=2)
         self.labels.append(label)
         # connect
         self.login_button = Button(self, text="Login", command=self.login)
-        self.login_button.grid(row=4, columnspan=3, pady=(5,5), padx=(5,5), sticky=N+S+E+W)
+        self.login_button.grid(row=4, columnspan=2, pady=(5,5), padx=(5,5), sticky=N+S+E+W)
         self.buttons.append(self.login_button)
 
         # grid config
         Grid.rowconfigure(self, 4, weight=1)
-        Grid.columnconfigure(self, 1, weight=1)
+        Grid.columnconfigure(self, 2, weight=1)
 
     def login(self):
         # validate inputs
@@ -117,8 +117,8 @@ class Interface(Frame):
             tab_controller.add(tab, text=f"Tab {i}")
 
             # button to send server request
-            ttk.Label(tab, text=f"Function {i}: {functions[i]}").grid(column=0,row=0,padx=15,pady=10)
-            ttk.Button(tab, text="Command", command=lambda i=i: self.function_request(i)).grid(column=1,row=0,padx=15,pady=10)
+            ttk.Label(tab, text=f"Function {i}: {functions[i]}").grid(column=0,row=0,padx=5,pady=5,sticky=W)
+            ttk.Button(tab, text="Command", command=lambda i=i: self.function_request(i)).grid(column=3,row=0,padx=10,pady=5)
 
         # visualise tabs
         tab_controller.pack(expand=1, fill="both")
