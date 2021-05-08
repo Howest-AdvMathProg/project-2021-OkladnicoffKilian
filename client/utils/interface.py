@@ -74,8 +74,8 @@ class Interface(Frame):
                     self.client.connect()
 
                     # send user login data
-                    data = {"fullname": self.entry_name.get(), "username": self.entry_nickname.get(), "email": self.entry_email.get()}
-                    self.client.send_data(json.dumps(data))
+                    data = f"login?fullname={self.entry_name.get()}&username={self.entry_nickname.get()}&email={self.entry_email.get()}"
+                    self.client.send_data(data)
 
                     # receive user id
                     # if self.client.receive_data():
