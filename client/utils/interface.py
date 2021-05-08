@@ -5,6 +5,8 @@ import re
 import json
 from .client import Client
 
+functions = ["Seach kepler name", "scatterplot", "false positives vs true positives", "random kepler object"]
+
 class Interface(Frame):
     def __init__(self, master=None):
         # set variables
@@ -94,25 +96,31 @@ class Interface(Frame):
 
     # main menu
     def main_menu(self):
-        # # create menu tabs
-        # menu = Menu(self.master)
-        # self.master.config(menu=menu)
-
-        # # create user tab
-        # user = Menu(menu)
-        # user.add_command(label="Logout", command=self.window_closed)
-        # menu.add_cascade(label="User", menu=user)   
+        Label(self, text="Connected to server").grid(row=0,column=0,padx=5)
+        # logout button
+        logout_button = Button(self, text="Logout", command=self.window_closed)
+        logout_button.grid(row=0, column=3, pady=(5,5), padx=(5,5), sticky=N+S+E+W)
 
         # create parent for tabs
-        tab_control = ttk.Notebook(self.master)
+        tab_controller = ttk.Notebook(self.master)
 
-        # create tab for each function
-        for i in range(0, 5):
-            tab = ttk.Frame(tab_control)
-            tab_control.add(tab, text=f"Tab {i}")
+        # create generals for each function
+        for i in range(0, len(functions)-1):
+            # create tab
+            tab = ttk.Frame(tab_controller)
+            tab_controller.add(tab, text=f"Tab {i}")
+
+            # button to send server request
+            ttk.Label(tab, text=f"Function {i}: {functions[i]}").grid(column=0,row=0,padx=15,pady=10)
+            ttk.Button(tab, text="Command", command=lambda i=i: self.function_request(i)).grid(column=1,row=0,padx=15,pady=10)
 
         # visualise tabs
-        tab_control.pack(expand=1, fill="both")
+        tab_controller.pack(expand=1, fill="both")
+
+    # function request
+    def function_request(self, tab_number):
+        logging.debug(f"Request came from tab {tab_number}")
+        logging.debug(f"Function: {functions[tab_number]}")
 
     # method called when window is closed
     def window_closed(self):
