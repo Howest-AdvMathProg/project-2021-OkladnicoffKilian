@@ -20,5 +20,5 @@ class Logger:
     
     def log(self, level, msg):
         self.__logger.log(level, msg)
-        if level >= logging.ERROR:
-            raise f"{logging.getLevelName(level)}: {msg}"
+        if level >= logging.CRITICAL:
+            raise Exception(f"{logging.getLevelName(level)}: {msg}")
