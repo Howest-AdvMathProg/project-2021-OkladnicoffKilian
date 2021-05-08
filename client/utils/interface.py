@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import ttk
 import logging
 import re
 import json
@@ -93,14 +94,25 @@ class Interface(Frame):
 
     # main menu
     def main_menu(self):
-        # create menu tabs
-        menu = Menu(self.master)
-        self.master.config(menu=menu)
+        # # create menu tabs
+        # menu = Menu(self.master)
+        # self.master.config(menu=menu)
 
-        # create user tab
-        user = Menu(menu)
-        user.add_command(label="Logout", command=self.window_closed)
-        menu.add_cascade(label="User", menu=user)   
+        # # create user tab
+        # user = Menu(menu)
+        # user.add_command(label="Logout", command=self.window_closed)
+        # menu.add_cascade(label="User", menu=user)   
+
+        # create parent for tabs
+        tab_control = ttk.Notebook(self.master)
+
+        # create tab for each function
+        for i in range(0, 5):
+            tab = ttk.Frame(tab_control)
+            tab_control.add(tab, text=f"Tab {i}")
+
+        # visualise tabs
+        tab_control.pack(expand=1, fill="both")
 
     # method called when window is closed
     def window_closed(self):
