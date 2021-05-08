@@ -16,7 +16,7 @@ class Client():
         logging.info("Connected to server")
 
         # create stream
-        self.io_stream_server = self.socket_to_server.makefile(mode='rw')
+        # self.io_stream_server = self.socket_to_server.makefile(mode='rw')
 
     def disconnect(self):
         self.socket_to_server.close()
@@ -38,5 +38,7 @@ class Client():
         logging.debug("Data sent")
 
     def receive_data(self):
-        result = self.io_stream_server.readline().rstrip("\n")
-        return result
+        # result = self.io_stream_server.readline().rstrip("\n")
+        data = self.socket_to_server.recv()
+
+        return data
