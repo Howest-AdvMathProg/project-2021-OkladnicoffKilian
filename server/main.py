@@ -64,10 +64,11 @@ class Commands:
         dirpath = path.dirname(__file__) + f"/temp"
         fp = dirpath + f"/{temp_id}.png"
         
-        sns.countplot(data=self.dataset.dropna(axis=1, inplace=False), x="koi_disposition")
+        sns.countplot(data=self.dataset['koi_disposition'].dropna(axis=0, inplace=False), x="koi_disposition")
         if not path.exists(dirpath):
             os.mkdir(dirpath)
         
+        plt.close('all')
         plt.savefig(fp)
 
         while True:
@@ -88,7 +89,44 @@ class Commands:
                     break
             except Exception as e:
                 print(e)
+        return data
 
+    def get_columns(self):
+        return list(self.dataset.columns)
+
+    def scatterplot(self, x='koi_teq', y='koi_srad'):
+        temp_id = uuid.uuid4()
+        dirpath = path.dirname(__file__) + f"/temp"
+        fp = dirpath + f"/{temp_id}.png"
+        
+        dataset = self.dataset[[x, y]].dropna(axis=0, inplace=False)
+        plt.scatter(dataset[x], dataset[y])
+        plt.xlabel(x)
+        plt.ylabel(y)
+        if not path.exists(dirpath):
+            os.mkdir(dirpath)
+        
+        plt.savefig(fp)
+        plt.close('all')
+
+        while True:
+            try:
+                with open(fp, 'rb') as f:
+                    data = f.readlines()
+                    f.close()
+                if data:
+                    break
+            except:
+                pass
+
+        while True:
+            try:
+                os.remove(fp)
+                print(os.path.exists(fp))
+                if not path.exists(fp):
+                    break
+            except Exception as e:
+                print(e)
         return data
 
 

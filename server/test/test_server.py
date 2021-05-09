@@ -85,9 +85,38 @@ def get_countplot():
     img = Image.open(io.BytesIO(data))
     return img
 
+def get_scatterplot(x=None,y=None):
+    if x and y:
+        msg = f"scatterplot?session_id={sessid}&x={x}&y={y}".encode(FORMAT)
+    else:
+        msg = f"scatterplot?session_id={sessid}".encode(FORMAT)
+    msglength = len(msg)
+    msglength = str(msglength).encode(FORMAT)
+    msglength += b' ' * (HEADERSIZE - len(msglength))
+    s.send(msglength)
+    s.send(msg)
+    msglength = int(s.recv(HEADERSIZE).decode(FORMAT))
+    received = s.recv(msglength).decode(FORMAT)
+    data = b''.join(eval(received))
+    img = Image.open(io.BytesIO(data))
+    return img
+
+def get_columns():
+    msg = f"get_columns?session_id={sessid}".encode(FORMAT)
+    msglength = len(msg)
+    msglength = str(msglength).encode(FORMAT)
+    msglength += b' ' * (HEADERSIZE - len(msglength))
+    s.send(msglength)
+    s.send(msg)
+    msglength = int(s.recv(HEADERSIZE).decode(FORMAT))
+    data = s.recv(msglength).decode(FORMAT)
+    return data
+
 try:
     sessid = login()
-    img = get_countplot()
+    cols = eval(get_columns())
+    
+    img = get_scatterplot(x=cols[11], y=cols[10])
     img.show()
     sleep(10)
     
