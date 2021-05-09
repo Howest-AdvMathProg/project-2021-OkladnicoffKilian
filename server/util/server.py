@@ -73,7 +73,7 @@ class Server:
                                 self.logger.log(logger.DEBUG, e)
                                 raise TypeError('missing session id')
                         else:
-                            if self.sessid != None: 
+                            if self.sessid != None and data[0] != 'logout': 
                                 if self.sessid in self.commands.logged_in.keys():
                                     self.send(409) # user is already logged in and needs to log out
                                     continue
