@@ -25,7 +25,6 @@ def login():
     return data
 
 def confirmed():
-    sessid = login()
     msg = f"get_confirmed?session_id={sessid}".encode(FORMAT)
     msglength = len(msg)
     msglength = str(msglength).encode(FORMAT)
@@ -114,10 +113,8 @@ def get_columns():
 
 try:
     sessid = login()
-    cols = eval(get_columns())
-    
-    img = get_scatterplot(x=cols[11], y=cols[10])
-    img.show()
+    data = byname()
+    print(data)
     sleep(10)
     
 except KeyboardInterrupt:

@@ -105,6 +105,7 @@ class Server:
                                     self.send(409) # user is already logged in and needs to log out
                                     continue
                         retval = getattr(self.commands, data[0])(**data[1]) if len(data) > 1 else getattr(self.commands, data[0])() #execute the requested endpoint with its parameters
+                        print(getattr(self.commands, data[0]).counter)
                         
                         #if the user just logged in, link the session id to this socket
                         if data[0] == 'login':

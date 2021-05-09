@@ -15,6 +15,13 @@ import os
 import util.logger as logger
 
 
+def count_function(func):
+    def wrapper(*args, **kwargs):
+        wrapper.counter += 1
+        return func(*args, **kwargs)
+    wrapper.counter = 0
+    return wrapper
+
 #class containing all endpoints and command related code
 class Commands:
     logged_in = {}
@@ -31,6 +38,7 @@ class Commands:
         return pickle.dumps(self.dataset[self.dataset['koi_disposition'] == 'CONFIRMED'])
     
     #get koi objects by search query on the name. May be incomplete name
+    @count_function
     def get_kepler_name(self, name):
         return pickle.dumps(self.dataset[self.dataset['kepler_name'].str.contains(name, na=False, regex=False)])
 
@@ -41,12 +49,14 @@ class Commands:
         return False
 
     #login the user and send back the session id
+    @count_function
     def login(self, uname, fullname, email):
         sessid = str(uuid.uuid4())
         self.logged_in[sessid] = dict(username = uname, fullname = fullname, email = email)
         return sessid
 
     #log the user out, and remove the session from logged in
+    @count_function
     def logout(self, session_id):
         if session_id in self.logged_in.keys():
             self.logged_in.pop(session_id)
@@ -54,6 +64,7 @@ class Commands:
         return 404
     
     #filter by koi score
+    @count_function
     def get_koi_score(self, score, operand='lt'):
         try:
             #operands to be used
@@ -76,6 +87,7 @@ class Commands:
             return 400 #will mainly trigger if operand is not defined
 
     #get a countplot of the koi dispositions
+    @count_function
     def countplot(self):
 
         #generate a graph, and save as a temporary image
@@ -115,10 +127,12 @@ class Commands:
         return data
 
     #get all possible column filters for scatterplot
+    @count_function
     def get_columns(self):
         return list(self.dataset.columns)
 
     #plot 2 columns in a scatterplot to analyze correlation
+    @count_function
     def scatterplot(self, x='koi_teq', y='koi_srad'):
 
         #same method of working as countplot
