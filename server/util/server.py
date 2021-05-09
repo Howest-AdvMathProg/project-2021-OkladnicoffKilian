@@ -67,7 +67,7 @@ class Server:
                         if data[0] != 'login':
                             try:
                                 if not self.commands.check_login(data[1]['session_id']):
-                                    raise TypeError("Access denied")
+                                    raise PermissionError("Access denied")
                                 del data[1]['session_id']
                             except Exception as e:
                                 self.logger.log(logger.DEBUG, e)
@@ -75,18 +75,20 @@ class Server:
                         else:
                             if self.sessid != None: 
                                 if self.sessid in self.commands.logged_in.keys():
-                                    self.send("Already logged in, please log out first")
+                                    self.send(409) # user is already logged in and needs to log out
                                     continue
                         retval = getattr(self.commands, data[0])(**data[1]) if len(data) > 1 else getattr(self.commands, data[0])()
                         if data[0] == 'login':
                             self.sessid = retval
                         self.send(retval)
                     except NotImplementedError:
-                        self.send("Command not found")
+                        self.send(404) # command not found
+                    except PermissionError:
+                        self.send(401) # not logged in
                     except TypeError as e:
                         self.logger.log(logger.DEBUG, e)
-                        self.send("Could not process request")
-                    except Exception as e:
+                        self.send(500) # error concerning parameters
+                    except Exception as e: # any other error
                         self.logger.log(logger.ERROR, str(type(e)) + " | " + str(e))
                         self.connected = False
             try:

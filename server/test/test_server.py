@@ -34,7 +34,7 @@ def confirmed():
     return obj
 
 def byname():
-    msg = f"get_kepler_name?session_id={sessid}&name=Kepler-227".encode(FORMAT)
+    msg = f"get_kepler_name?name=Kepler-227&session_id={sessid}".encode(FORMAT)
     msglength = len(msg)
     msglength = str(msglength).encode(FORMAT)
     msglength += b' ' * (HEADERSIZE - len(msglength))
