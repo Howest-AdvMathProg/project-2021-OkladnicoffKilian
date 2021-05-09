@@ -7,7 +7,6 @@ from time import sleep
 class Server:
     class ClientHandler(threading.Thread):
         active_connections = []
-        logged_in = {}
 
         HEADERSIZE = 128
         FORMAT = 'utf-8'
@@ -23,7 +22,7 @@ class Server:
             self.active_connections.append(self)
             self.s = sock
             self.addr = addr
-            self.commands = command_class
+            self.commands = command_class()
             self.connected = True
 
         def receive(self):
@@ -62,17 +61,29 @@ class Server:
                 data = self.receive()
                 if data:
                     try:
+                        if data[0] != 'login':
+                            try:
+                                if not self.commands.check_login(data[1]['session_id']):
+                                    raise TypeError("Access denied")
+                                del data[1]['session_id']
+                            except Exception as e:
+                                self.logger.log(logger.DEBUG, e)
+                                raise TypeError('missing session id')
                         retval = getattr(self.commands, data[0])(**data[1]) if len(data) > 1 else getattr(self.commands, data[0])()
+                        if data[0] == 'login':
+                            self.sessid = retval
                         self.send(retval)
                     except NotImplementedError:
                         self.send("Command not found")
-                    except TypeError:
+                    except TypeError as e:
+                        self.logger.log(logger.DEBUG, e)
                         self.send("Could not process request")
                     except Exception as e:
                         self.logger.log(logger.ERROR, str(type(e)) + " | " + str(e))
                         self.connected = False
             try:
                 self.s.close()
+                del self.commands.logged_in[self.sessid]
             except:
                 pass
             self.logger.log(logger.INFO, "Closing socket...")
