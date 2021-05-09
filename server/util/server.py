@@ -39,8 +39,10 @@ class Server:
                 return data
 
         def send(self, data):
-            data = str(data).encode(self.FORMAT)
-            size = str(len(data)).encode(self.FORMAT)
+            if type(data) != str:
+                data = str(data)
+            data = bytes(data, self.FORMAT)
+            size = bytes(str(len(data)), self.FORMAT)
             size = size + b" "*(self.HEADERSIZE - len(size))
             self.s.send(size)
             self.s.send(data)

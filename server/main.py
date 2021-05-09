@@ -30,6 +30,8 @@ class Commands:
     def logout(self, session_id):
         if session_id in self.logged_in.keys():
             self.logged_in.pop(session_id)
+            return 200
+        return 404
 
 
 logging.basicConfig(level=logging.DEBUG, format="%(levelname)s --> %(msg)s")

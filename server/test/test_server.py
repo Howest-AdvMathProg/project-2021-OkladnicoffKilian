@@ -29,12 +29,9 @@ try:
     s.send(msg)
     msglength = int(s.recv(HEADERSIZE).decode(FORMAT))
     data = s.recv(msglength).decode(FORMAT)
-    # print(f"returned: {data}")
-    try:
-        obj = pickle.load(data)
-        print(obj)
-    except:
-        print(data)
+
+    obj = pickle.loads(eval(data))
+    print(obj)
     sleep(10)
 
 except KeyboardInterrupt:
