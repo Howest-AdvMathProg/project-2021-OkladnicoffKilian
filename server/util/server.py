@@ -64,7 +64,7 @@ class Server:
                 data = self.receive()
                 if data:
                     try:
-                        if data[0] != 'login':
+                        if data[0] not in ['login', 'logout']:
                             try:
                                 if not self.commands.check_login(data[1]['session_id']):
                                     raise PermissionError("Access denied")
