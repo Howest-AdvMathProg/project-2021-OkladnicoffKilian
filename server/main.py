@@ -72,19 +72,22 @@ class Commands:
 
         while True:
             try:
-                data = b""
-                f = open(fp, 'rb')
-                data = f.readlines()
-                if data: break
+                with open(fp, 'rb') as f:
+                    data = f.readlines()
+                    f.close()
+                if data:
+                    break
             except:
                 pass
 
-        for i in range(10):
+        while True:
             try:
                 os.remove(fp)
-                break
-            except:
-                pass
+                print(os.path.exists(fp))
+                if not path.exists(fp):
+                    break
+            except Exception as e:
+                print(e)
 
         return data
 
