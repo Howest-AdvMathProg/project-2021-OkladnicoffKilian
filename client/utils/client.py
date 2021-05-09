@@ -45,8 +45,12 @@ class Client():
         logging.debug("Data sent")
 
     def receive_data(self):
-        # result = self.io_stream_server.readline().rstrip("\n")
-        data = self.socket_to_server.recv()
+        msglength = int(self.socket_to_server.recv(headersize).decode(encoding_format))
+
+        if msglength:
+            data = self.socket_to_server.recv(msglength).decode(encoding_format)
+
+        logging.debug(f"Data received: {data}")
 
         return data
 
