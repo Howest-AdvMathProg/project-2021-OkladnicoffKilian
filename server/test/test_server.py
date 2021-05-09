@@ -45,11 +45,22 @@ def byname():
     obj = pickle.loads(eval(data))
     return obj
 
+def logout():
+    msg = f"logout?session_id={sessid}".encode(FORMAT)
+    msglength = len(msg)
+    msglength = str(msglength).encode(FORMAT)
+    msglength += b' ' * (HEADERSIZE - len(msglength))
+    s.send(msglength)
+    s.send(msg)
+    msglength = int(s.recv(HEADERSIZE).decode(FORMAT))
+    data = s.recv(msglength).decode(FORMAT)
+    return data
 
 # s.setblocking(0)
 try:
     sessid = login()
     print(byname())
+    print(logout())
 
     sleep(10)
 
