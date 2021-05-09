@@ -56,11 +56,23 @@ def logout():
     data = s.recv(msglength).decode(FORMAT)
     return data
 
+def get_score():
+    msg = f"get_koi_score?score=0.5&session_id={sessid}&operand=gt".encode(FORMAT)
+    msglength = len(msg)
+    msglength = str(msglength).encode(FORMAT)
+    msglength += b' ' * (HEADERSIZE - len(msglength))
+    s.send(msglength)
+    s.send(msg)
+    msglength = int(s.recv(HEADERSIZE).decode(FORMAT))
+    data = s.recv(msglength).decode(FORMAT)
+    obj = pickle.loads(eval(data))
+    return obj
+    
+
 # s.setblocking(0)
 try:
     sessid = login()
-    print(byname())
-    print(logout())
+    print(get_score())
 
     sleep(10)
 

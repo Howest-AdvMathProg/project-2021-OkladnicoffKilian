@@ -6,6 +6,7 @@ import pandas as pd
 import pickle
 from os import path
 import uuid
+import operator
 
 
 class Commands:
@@ -35,6 +36,24 @@ class Commands:
             self.logged_in.pop(session_id)
             return 200
         return 404
+    
+    def get_koi_score(self, score, operand='lt'):
+        try:
+            ops = {
+                'lt': operator.lt,
+                'le': operator.le,
+                'eq': operator.eq,
+                'ge': operator.ge,
+                'gt': operator.gt
+            }
+            score = float(score)
+            if score > 1 or score < 0:
+                raise ValueError()
+            return pickle.dumps(self.dataset[ops[operand.lower()](self.dataset['koi_score'], score)])
+        except Exception as e:
+            logging.error(e)
+            return 400 #if operand is not defined
+
 
 
 logging.basicConfig(level=logging.DEBUG, format="%(levelname)s --> %(msg)s")
