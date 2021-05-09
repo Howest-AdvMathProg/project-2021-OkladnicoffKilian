@@ -5,7 +5,7 @@ import re
 import json
 from .client import Client
 
-functions = ["Seach kepler name", "scatterplot", "false positives vs true positives", "random kepler object"]
+functions = {"Get confirmed kepler objects": "get_confirmed"}
 
 class Interface(Frame):
     def __init__(self, master=None):

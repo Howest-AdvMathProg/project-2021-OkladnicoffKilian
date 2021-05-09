@@ -16,18 +16,25 @@ class Client():
         self.socket_to_server.connect((self.host, self.port))
         logging.info("Connected to server")
 
-        # create stream
-        # self.io_stream_server = self.socket_to_server.makefile(mode='rw')
-
     def disconnect(self):
+        # check for session id --> if there notify server of disconnect
+        print(self.session_id)
+        if self.session_id != None:
+            data = f"logout?"
+            self.send_data(data)
+            response = self.receive_data()
+            if response == 200:
+                logging.info("Server disconnected")
+            else:
+                logging.warning("Server encountered an error")
+
         self.socket_to_server.close()
-        logging.info("Connection closed with server")
+        logging.info("Client closed")
 
     def send_data(self, data):
         # if client has a sessionid it needs to be send aswell
-        logging.debug(f"Session id: {self.session_id}")
         if self.session_id != None:
-            data += f"&session_id={self.session_id}"
+            data += f"&session_id={self.session_id}" if data[-1]!="?" else f"session_id={self.session_id}"
             
         data = data.encode(encoding_format)
 
