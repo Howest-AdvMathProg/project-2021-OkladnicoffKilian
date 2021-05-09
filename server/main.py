@@ -12,10 +12,12 @@ mpl.use('Agg')
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
+import util.logger as logger
 
 
 class Commands:
     logged_in = {}
+    logger = logger.Logger("Commands", file=True, loglevel=logging.INFO, fileformatter=logging.Formatter("[%(asctime)s] %(user)s(%(uname)s) requested %(msg)s"))
 
     def __init__(self):
         self.dataset = pd.read_csv(path.join(path.dirname(__file__), "data/kepler.csv"))

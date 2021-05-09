@@ -80,6 +80,10 @@ class Server:
                         retval = getattr(self.commands, data[0])(**data[1]) if len(data) > 1 else getattr(self.commands, data[0])()
                         if data[0] == 'login':
                             self.sessid = retval
+                        try:
+                            self.commands.logger.log(logger.INFO, data[0], extra={"user": self.sessid, "uname": next(v['username'] for k,v in self.commands.logged_in.items() if k == self.sessid)})
+                        except Exception as e:
+                            self.logger.log(logger.DEBUG, e)
                         self.send(retval)
                     except NotImplementedError:
                         self.send(404) # command not found
