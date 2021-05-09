@@ -93,7 +93,7 @@ class Server:
                         #no need to check for access on login and logout
                         if data[0] not in ['login', 'logout']:
                             try:
-                                if not self.commands.check_login(data[1]['session_id']):
+                                if not data[1]['session_id'] in self.commands.logged_in.keys():
                                     raise PermissionError("Access denied")
                                 del data[1]['session_id']
                             except Exception as e:

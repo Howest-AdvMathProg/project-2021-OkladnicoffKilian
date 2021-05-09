@@ -14,7 +14,7 @@ import seaborn as sns
 import os
 import util.logger as logger
 
-
+#decorator to keep track of amount of function calls per endpoint
 def count_function(func):
     def wrapper(*args, **kwargs):
         wrapper.counter += 1
@@ -42,11 +42,6 @@ class Commands:
     def get_kepler_name(self, name):
         return pickle.dumps(self.dataset[self.dataset['kepler_name'].str.contains(name, na=False, regex=False)])
 
-    #function to check if the user is a logged in user. Serves as an extra check
-    def check_login(self, session_id):
-        if session_id in self.logged_in.keys():
-            return True
-        return False
 
     #login the user and send back the session id
     @count_function
