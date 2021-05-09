@@ -94,7 +94,6 @@ class Server:
                     self.commands.logout(self.sessid)
                 except Exception as e:
                     self.logger.log(logger.DEBUG, e)
-                self.active_connections.remove(self)
                 self.s.close()
             except:
                 pass

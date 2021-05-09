@@ -16,6 +16,9 @@ class Commands:
     
     def get_confirmed(self):
         return pickle.dumps(self.dataset[self.dataset['koi_disposition'] == 'CONFIRMED'])
+    
+    def get_kepler_name(self, name):
+        return pickle.dumps(self.dataset[self.dataset['kepler_name'].str.contains(name, na=False, regex=False)])
 
     def check_login(self, session_id):
         if session_id in self.logged_in.keys():
