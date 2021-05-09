@@ -83,7 +83,8 @@ class Server:
                         self.send(retval)
                     except NotImplementedError:
                         self.send(404) # command not found
-                    except PermissionError:
+                    except PermissionError as e:
+                        self.logger.log(logger.DEBUG, e)
                         self.send(401) # not logged in
                     except TypeError as e:
                         self.logger.log(logger.DEBUG, e)

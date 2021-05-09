@@ -7,6 +7,11 @@ import pickle
 from os import path
 import uuid
 import operator
+import matplotlib as mpl
+mpl.use('Agg')
+import matplotlib.pyplot as plt
+import seaborn as sns
+import os
 
 
 class Commands:
@@ -52,11 +57,40 @@ class Commands:
             return pickle.dumps(self.dataset[ops[operand.lower()](self.dataset['koi_score'], score)])
         except Exception as e:
             logging.error(e)
-            return 400 #if operand is not defined
+            return 400 #will mainly trigger if operand is not defined
+
+    def countplot(self):
+        temp_id = uuid.uuid4()
+        dirpath = path.dirname(__file__) + f"/temp"
+        fp = dirpath + f"/{temp_id}.png"
+        
+        sns.countplot(data=self.dataset.dropna(axis=1, inplace=False), x="koi_disposition")
+        if not path.exists(dirpath):
+            os.mkdir(dirpath)
+        
+        plt.savefig(fp)
+
+        while True:
+            try:
+                data = b""
+                f = open(fp, 'rb')
+                data = f.readlines()
+                if data: break
+            except:
+                pass
+
+        for i in range(10):
+            try:
+                os.remove(fp)
+                break
+            except:
+                pass
+
+        return data
 
 
-
-logging.basicConfig(level=logging.DEBUG, format="%(levelname)s --> %(msg)s")
+logging.basicConfig(level=logging.DEBUG, format="%(name)s:%(levelname)s --> %(msg)s")
+logging.getLogger('matplotlib.font_manager').setLevel(logging.CRITICAL)
 threading.Thread(target=Server, args=(Commands,), daemon=True).start()
 
 try:
