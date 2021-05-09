@@ -10,7 +10,7 @@ s.connect((socket.gethostbyname(socket.gethostname()), 5000))
 # s.setblocking(0)
 try:
     msg = "get?message=dit is een test".encode(FORMAT)
-    msg = "get".encode(FORMAT)
+    # msg = "get".encode(FORMAT)
     msglength = len(msg)
     msglength = str(msglength).encode(FORMAT)
     msglength += b' ' * (HEADERSIZE - len(msglength))

@@ -102,7 +102,7 @@ class Server:
         self.logger.log(logger.INFO, "Server online, listening for connections...")
         threading.Thread(target=self.log_active, daemon=True).start()
 
-        while self.running:
+        while True:
             sock_client, addr = self.s.accept()
             self.logger.log(logger.INFO, f"Got connection from {addr}")
             if len(self.ClientHandler.active_connections) < self.max_clients:

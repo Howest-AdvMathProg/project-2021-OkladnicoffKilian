@@ -1,5 +1,7 @@
 from util.server import Server
 import logging
+import threading
+from time import sleep
 
 class Commands:
     @staticmethod
@@ -7,4 +9,12 @@ class Commands:
         return message
 
 logging.basicConfig(level=logging.DEBUG, format="%(levelname)s --> %(msg)s")
-server = Server(command_class=Commands)
+threading.Thread(target=Server, args=(Commands,), daemon=True).start()
+
+try:
+    while True:
+        sleep(10)
+except KeyboardInterrupt:
+    exit()
+except Exception as e:
+    logging.error(e)
