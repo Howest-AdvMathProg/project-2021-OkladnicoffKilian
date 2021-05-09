@@ -23,9 +23,13 @@ class Commands:
         return False
 
     def login(self, uname, fullname, email):
-        sessid = uuid.uuid4()
-        self.logged_in[str(sessid)] = dict(username = uname, fullname = fullname, email = email)
+        sessid = str(uuid.uuid4())
+        self.logged_in[sessid] = dict(username = uname, fullname = fullname, email = email)
         return sessid
+
+    def logout(self, session_id):
+        if session_id in self.logged_in.keys():
+            self.logged_in.pop(session_id)
 
 
 logging.basicConfig(level=logging.DEBUG, format="%(levelname)s --> %(msg)s")

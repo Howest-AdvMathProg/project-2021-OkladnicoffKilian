@@ -23,6 +23,7 @@ class Server:
             self.s = sock
             self.addr = addr
             self.commands = command_class()
+            self.sessid = None
             self.connected = True
 
         def receive(self):
@@ -69,6 +70,11 @@ class Server:
                             except Exception as e:
                                 self.logger.log(logger.DEBUG, e)
                                 raise TypeError('missing session id')
+                        else:
+                            if self.sessid != None: 
+                                if self.sessid in self.commands.logged_in.keys():
+                                    self.send("Already logged in, please log out first")
+                                    continue
                         retval = getattr(self.commands, data[0])(**data[1]) if len(data) > 1 else getattr(self.commands, data[0])()
                         if data[0] == 'login':
                             self.sessid = retval
@@ -82,8 +88,12 @@ class Server:
                         self.logger.log(logger.ERROR, str(type(e)) + " | " + str(e))
                         self.connected = False
             try:
+                try:
+                    self.commands.logout(self.sessid)
+                except Exception as e:
+                    self.logger.log(logger.DEBUG, e)
+                self.active_connections.remove(self)
                 self.s.close()
-                del self.commands.logged_in[self.sessid]
             except:
                 pass
             self.logger.log(logger.INFO, "Closing socket...")
