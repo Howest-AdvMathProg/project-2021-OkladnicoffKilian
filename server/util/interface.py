@@ -22,8 +22,9 @@ class Interface(Frame):
         self.scrollbar = Scrollbar(self, orient=VERTICAL)
         self.clientlst = Listbox(self, yscrollcommand=self.scrollbar.set)
         self.scrollbar.config(command=self.clientlst.yview)
+        
         self.clientlst.grid(column=0,row=1,rowspan=4,pady=(0,10), sticky=N+S+E+W)
-        self.scrollbar.grid(column=0,row=1,rowspan=4, sticky=N+S)
+        self.scrollbar.grid(column=0,row=1,rowspan=4, sticky=N+S+E)
         # fill listbox with connected clients
         # self.clientlst.bind('<<ListboxSelect>>', self.on_client_select)
 

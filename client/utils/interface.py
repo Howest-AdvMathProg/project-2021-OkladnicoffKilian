@@ -3,9 +3,12 @@ from tkinter import ttk
 import logging
 import re
 import json
+import pickle
+import pandas as pd
 from .client import Client
 
-functions = {"Get confirmed kepler objects": "get_confirmed"}
+functions = [{"function": "get_confirmed", "name": "Confirmed objects", "description": "Get confirmed kepler objects", "parameters": []}, 
+             {"function": "", "name": "", "description": "", "parameters": []}]
 
 class Interface(Frame):
     def __init__(self, master=None):
@@ -67,7 +70,6 @@ class Interface(Frame):
         # validate inputs
         # check if not empty
         if self.entry_name.get() and self.entry_uname.get() and self.entry_email.get():
-            print(re.findall('[^a-zA-ZÀ-ÖØ-öø-ÿ\d\s:-]+', self.entry_name.get()))
             if not re.findall('[^a-zA-ZÀ-ÖØ-öø-ÿ\d\s:-]+', self.entry_name.get()):
                 if not re.findall('[^a-zA-ZÀ-ÖØ-öø-ÿ\d\s:-]+', self.entry_uname.get()):
                     if re.match('([A-Za-z0-9.!#$%&*+\-/=?^_`{|}~]+@[A-Za-z0-9\-\.]+)', self.entry_email.get()):
@@ -114,19 +116,51 @@ class Interface(Frame):
         for i in range(0, len(functions)-1):
             # create tab
             tab = ttk.Frame(tab_controller)
-            tab_controller.add(tab, text=f"Tab {i}")
+            tab_controller.add(tab, text=functions[i]["name"])
 
             # button to send server request
-            ttk.Label(tab, text=f"Function {i}: {functions[i]}").grid(column=0,row=0,padx=5,pady=5,sticky=W)
-            ttk.Button(tab, text="Command", command=lambda i=i: self.function_request(i)).grid(column=3,row=0,padx=10,pady=5)
+            ttk.Label(tab, text=functions[i]["description"]).grid(column=0,row=0,padx=5,pady=5,sticky=W)
+            ttk.Button(tab, text="Send request", command=lambda i=i, tab=tab: self.append_main_menu(functions[i], tab)).grid(column=3,row=0,padx=10,pady=5)
+
+            self.server_response = StringVar()
+            label = Label(self, textvariable=self.server_response).grid(column=0, row=1,padx=5,pady=5,sticky=W)
 
         # visualise tabs
         tab_controller.pack(expand=1, fill="both")
 
     # function request
-    def function_request(self, tab_number):
-        logging.debug(f"Request came from tab {tab_number}")
-        logging.debug(f"Function: {functions[tab_number]}")
+    def function_request(self, function, parameters=None):
+        logging.debug(f"Function: {function}")
+
+        # send data
+        command = f"{function}?"
+        self.client.send_data(command)
+
+        # receive data and process
+        result = pickle.loads(eval(self.client.receive_data()))
+        return result
+
+    # add data to window
+    def append_main_menu(self, function, tab):
+        data = self.function_request(function['function'], function['parameters'])
+
+        if function['function'] == "get_confirmed":
+            # add listbox + scrollbar
+            self.scrollbar = Scrollbar(tab, orient=VERTICAL)
+            self.datalst = Listbox(tab, yscrollcommand=self.scrollbar.set)
+            self.scrollbar.config(command=self.datalst.yview)
+
+            self.datalst.grid(column=0, row=1,padx=5,pady=5)
+            self.scrollbar.grid(column=0,row=1,sticky=N+S+E)
+
+            for item in data["kepler_name"]:
+                self.datalst.insert(END, item)
+            self.datalst.bind('<<ListboxSelect>>', self.onselect_confirmed)
+
+    def onselect_confirmed(self, event):
+        index = int(self.datalst.curselection()[0])
+        value = self.datalst.get(index)
+        logging.debug('You selected item %d: "%s"' % (index, value))
 
     # method called when window is closed
     def window_closed(self):

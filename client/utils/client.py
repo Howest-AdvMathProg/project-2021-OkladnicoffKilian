@@ -18,12 +18,11 @@ class Client():
 
     def disconnect(self):
         # check for session id --> if there notify server of disconnect
-        print(self.session_id)
         if self.session_id != None:
             data = f"logout?"
             self.send_data(data)
             response = self.receive_data()
-            if response == 200:
+            if response == "200":
                 logging.info("Server disconnected")
             else:
                 logging.warning("Server encountered an error")
@@ -57,7 +56,7 @@ class Client():
         if msglength:
             data = self.socket_to_server.recv(msglength).decode(encoding_format)
 
-        logging.debug(f"Data received: {data}")
+        # logging.debug(f"Data received: {data}")
 
         return data
 
