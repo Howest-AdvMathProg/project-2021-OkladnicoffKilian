@@ -18,3 +18,7 @@
 [2021-05-10 00:06:52,065] c484ab21-e7c2-4a10-b813-f6d75ba1fea2(kilian) requested get_kepler_name
 [2021-05-10 00:06:56,445] 3e661969-5b8a-462f-95c8-c931901d2b63(kilian) requested login
 [2021-05-10 00:06:56,449] 3e661969-5b8a-462f-95c8-c931901d2b63(kilian) requested get_kepler_name
+[2021-05-10 00:15:42,733] 42dd4d7f-4bda-43ff-8fc6-ac9eea951f6f(kilian) requested login
+[2021-05-10 00:15:42,736] 42dd4d7f-4bda-43ff-8fc6-ac9eea951f6f(kilian) requested get_kepler_name
+[2021-05-10 00:22:57,603] 7bbd0b01-1868-40ce-afc2-f6998dcc1192(kilian) requested login
+[2021-05-10 00:22:57,607] 7bbd0b01-1868-40ce-afc2-f6998dcc1192(kilian) requested get_kepler_name

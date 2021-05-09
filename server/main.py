@@ -1,18 +1,20 @@
-from util.server import Server
-import logging
-import threading
-from time import sleep
-import pandas as pd
-import pickle
 from os import path
-import uuid
-import operator
-import matplotlib as mpl
-mpl.use('Agg')
+from tkinter import *
+from time import sleep
+from util.server import Server
+from util.interface import Interface
 import matplotlib.pyplot as plt
-import seaborn as sns
-import os
 import util.logger as logger
+import matplotlib as mpl
+import seaborn as sns
+import pandas as pd
+import operator
+import threading
+import logging
+import pickle
+import uuid
+import os
+mpl.use('Agg')
 
 #decorator to keep track of amount of function calls per endpoint
 def count_function(func):
@@ -172,8 +174,9 @@ threading.Thread(target=Server, args=(Commands,), daemon=True).start() #start th
 
 try:
     #main logic for server side
-    while True:
-        sleep(0.1)
+    root = Tk()
+    gui = Interface(master=root)
+    gui.mainloop()
 except KeyboardInterrupt:
     exit()
 except Exception as e:
