@@ -8,7 +8,8 @@ import pandas as pd
 from .client import Client
 
 functions = [{"function": "get_confirmed", "name": "Confirmed objects", "description": "Get confirmed kepler objects", "parameters": False},
-             {"function": "get_kepler_name", "name": "Search kepler names", "description": "Get koi object by searching their name", "parameters": True},
+             {"function": "get_kepler_name", "name": "Search kepler names", "description": "Get kepler object by searching its name", "parameters": True},
+             {"function": "get_koi_score", "name": "FIX", "description": "Search based on certainty that koi object is a kepler object", "parameters": True},
              {"function": "", "name": "", "description": "", "parameters": False}]
 
 class Interface(Frame):
@@ -127,10 +128,20 @@ class Interface(Frame):
             sep.grid(column=0,columnspan=4,row=1,sticky=W+E)
             ttk.Button(tab, text="Send request", command=lambda i=i, tab=tab: self.append_main_menu(functions[i], tab)).grid(column=3,row=2,padx=10,pady=5,sticky=E)
 
-
+        # specifics for get_kepler_name
         Label(self.tabs[1], text="Name to search").grid(column=0,row=2,padx=5,pady=5,sticky=W)
         self.search_name_entry = Entry(self.tabs[1], width=25)
         self.search_name_entry.grid(column=1,row=2,pady=5)
+
+        # specifics for get_koi_score
+        Label(self.tabs[2], text="Score").grid(column=0,row=2,padx=5,pady=5,sticky=W)
+        self.search_score_entry = Entry(self.tabs[2], width=25)
+        self.search_score_entry.grid(column=1,row=2,pady=5)
+        choices = ('select search type', 'less then', 'less then or equal to', 'equal', 'greater then or equal to', 'greater then')             
+        self.search_score_cbo = ttk.Combobox(self.tabs[2], state="readonly", width=40)        
+        self.search_score_cbo['values'] = choices        
+        self.search_score_cbo.current(0)
+        self.search_score_cbo.grid(row=2, column=2, sticky=E + W)
 
         # visualise tabs
         tab_controller.pack(expand=1, fill="both")
@@ -145,6 +156,10 @@ class Interface(Frame):
         if parameters:
             if function == "get_kepler_name":
                 command += f"name={self.search_name_entry.get()}"
+            elif function == "get_koi_score":
+                search_dict = {'select search type': "lt", 'less then': "lt", 'less then or equal to': "le", 'equal':"eq", 'greater then or equal to': "ge", 'greater then':"gt"}
+                command += f"score={self.search_score_entry.get()}&operand={search_dict[self.search_score_cbo.get()]}"
+
 
         self.client.send_data(command)
 
@@ -156,7 +171,7 @@ class Interface(Frame):
     def append_main_menu(self, function, tab):
         data = self.function_request(function['function'], function['parameters'])
 
-        if function['function'] == "get_confirmed" or function['function'] == "get_kepler_name":
+        if function['function'] == "get_confirmed" or function['function'] == "get_kepler_name" or function['function'] == "get_koi_score":
             # add listbox + scrollbar
             self.scrollbar = Scrollbar(tab, orient=VERTICAL)
             self.datalst = Listbox(tab, yscrollcommand=self.scrollbar.set)
