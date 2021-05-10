@@ -219,7 +219,23 @@ class Interface(Frame):
                 self.koi_disposition = StringVar()
                 Label(tab, text="Koi disposition:").grid(column=1,row=5,padx=5,sticky=W)
                 Label(tab, textvariable=self.koi_disposition).grid(column=2,row=5,sticky=W)
-            # elif function['function'] == 'kepler_name':
+            else:
+                # star size
+                self.star_size = StringVar()
+                Label(tab, text="Star size:").grid(column=1,row=4,padx=5,sticky=W)
+                Label(tab, textvariable=self.star_size).grid(column=2,row=4,sticky=W)
+                # temperature
+                self.temperature = StringVar()
+                Label(tab, text="Temperature:").grid(column=1,row=5,padx=5,sticky=W)
+                Label(tab, textvariable=self.temperature).grid(column=2,row=5,sticky=W)
+                # # distance
+                # self.koi_score = StringVar()
+                # Label(tab, text="Koi score:").grid(column=1,row=4,padx=5,sticky=W)
+                # Label(tab, textvariable=self.koi_score).grid(column=2,row=4,sticky=W)
+                # # other
+                # self.koi_score = StringVar()
+                # Label(tab, text="Koi score:").grid(column=1,row=4,padx=5,sticky=W)
+                # Label(tab, textvariable=self.koi_score).grid(column=2,row=4,sticky=W)
 
         elif function['function'] == 'countplot' or function['function'] == 'scatterplot':
             self.img_placholder = Label(tab)
@@ -234,12 +250,16 @@ class Interface(Frame):
         logging.debug('You selected item %d: "%s"' % (index, value))
         self.selected.set(value)
 
-        if "Kepler" in value:
-            self.koi_score.set(self.data.loc[self.data['kepler_name'] == value, 'koi_score'].iloc[0])
-            self.koi_disposition.set(self.data.loc[self.data['kepler_name'] == value, 'koi_disposition'].iloc[0])
+        if self.koi_score:
+            if "Kepler" in value:
+                self.koi_score.set(self.data.loc[self.data['kepler_name'] == value, 'koi_score'].iloc[0])
+                self.koi_disposition.set(self.data.loc[self.data['kepler_name'] == value, 'koi_disposition'].iloc[0])
+            else:
+                self.koi_score.set(self.data.loc[self.data['kepoi_name'] == value, 'koi_score'].iloc[0])
+                self.koi_disposition.set(self.data.loc[self.data['kepoi_name'] == value, 'koi_disposition'].iloc[0])
         else:
-            self.koi_score.set(self.data.loc[self.data['kepoi_name'] == value, 'koi_score'].iloc[0])
-            self.koi_disposition.set(self.data.loc[self.data['kepoi_name'] == value, 'koi_disposition'].iloc[0])
+            self.temperature.set(self.data.loc[self.data['kepler_name'] == value, 'koi_teq'].iloc[0])
+            self.star_size.set(self.data.loc[self.data['kepler_name'] == value, 'koi_srad'].iloc[0])
 
     # method called when window is closed
     def window_closed(self):
