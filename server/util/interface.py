@@ -23,6 +23,8 @@ class Interface(Frame):
         self.clientlst.delete(0, 'end')
         [self.clientlst.insert('end', i) for i in [k for k in self.command_class.logged_in]]
         
+        self.reqlst.delete(0, 'end')
+        [self.reqlst.insert('end', f"{k} | {v} times called") for k,v in sorted(self.command_class.get_endpoint_counts().items(), key=lambda x: x[1], reverse=True)]
         self.master.after(1000, self.update)
 
     def send_message(self, guid, msg):
@@ -69,10 +71,10 @@ class Interface(Frame):
         # function usage
         Label(self, text="Request counters").grid(column=0,row=6,padx=5,pady=5,sticky=W)
         self.counter_scrollbar = Scrollbar(self, orient=VERTICAL)
-        self.clientlst = Listbox(self, yscrollcommand=self.counter_scrollbar.set,width=30)
-        self.counter_scrollbar.config(command=self.clientlst.yview)
+        self.reqlst = Listbox(self, yscrollcommand=self.counter_scrollbar.set,width=30)
+        self.counter_scrollbar.config(command=self.reqlst.yview)
 
-        self.clientlst.grid(column=0,row=7,rowspan=2,pady=(0,10), sticky=N+S+W)
+        self.reqlst.grid(column=0,row=7,rowspan=2,pady=(0,10), sticky=N+S+W)
         self.counter_scrollbar.grid(column=0,row=7,rowspan=2, sticky=N+S+E)
         # fill listbox with connected clients
         
