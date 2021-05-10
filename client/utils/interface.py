@@ -5,12 +5,15 @@ import re
 import json
 import pickle
 import pandas as pd
+import io
+from PIL import Image, ImageTk
 from .client import Client
 
-functions = [{"function": "get_confirmed", "name": "Confirmed objects", "description": "Get confirmed kepler objects", "parameters": False},
-             {"function": "get_kepler_name", "name": "Search kepler names", "description": "Get kepler object by searching its name", "parameters": True},
-             {"function": "get_koi_score", "name": "FIX", "description": "Search based on certainty that koi object is a kepler object", "parameters": True},
-             {"function": "", "name": "", "description": "", "parameters": False}]
+functions = [{"function": "confirmed", "name": "Confirmed objects", "description": "Get confirmed kepler objects", "parameters": False},
+             {"function": "kepler_name", "name": "Search kepler names", "description": "Get kepler object by searching its name", "parameters": True},
+             {"function": "koi_score", "name": "Kepler  certainty", "description": "Search based on certainty that koi object is a kepler object", "parameters": True},
+             {"function": "countplot", "name": "Countplot status", "description": "Returns a countplot that shows how many koi objects where classified as kepler objects", "parameters": False},
+             {"function": "scatterplot", "name": "Analyze correlation", "description": "Select two columns to see if they are correlated", "parameters": True}]
 
 class Interface(Frame):
     def __init__(self, master=None):
@@ -116,7 +119,7 @@ class Interface(Frame):
         tab_controller = ttk.Notebook(self.master)
 
         # create generals for each function
-        for i in range(0, len(functions)-1):
+        for i in range(0, len(functions)):
             # create tab
             tab = ttk.Frame(tab_controller)
             self.tabs.append(tab)
@@ -138,10 +141,26 @@ class Interface(Frame):
         self.search_score_entry = Entry(self.tabs[2], width=25)
         self.search_score_entry.grid(column=1,row=2,pady=5)
         choices = ('select search type', 'less then', 'less then or equal to', 'equal', 'greater then or equal to', 'greater then')             
-        self.search_score_cbo = ttk.Combobox(self.tabs[2], state="readonly", width=40)        
+        self.search_score_cbo = ttk.Combobox(self.tabs[2], state="readonly", width=25)        
         self.search_score_cbo['values'] = choices        
         self.search_score_cbo.current(0)
-        self.search_score_cbo.grid(row=2, column=2, sticky=E + W)
+        self.search_score_cbo.grid(row=2, column=2, sticky=E+W)
+
+        # specifics for scatterplot
+        Label(self.tabs[4], text="Select columns").grid(column=0,row=2,padx=5,pady=5,sticky=W)
+        # get column names
+        self.client.send_data('column_names?')
+        respose = self.client.receive_data()
+        choices = []
+        for choice in respose[1:-1].split(','):
+            choices.append(choice.strip()[1:-1])
+
+        self.scatterplot_x = ttk.Combobox(self.tabs[4], state="readonly", width=25)
+        self.scatterplot_x['values'] = tuple(choices)
+        self.scatterplot_x.grid(row=2, column=1, sticky=E+W)
+        self.scatterplot_y = ttk.Combobox(self.tabs[4], state="readonly", width=25)
+        self.scatterplot_y['values'] = tuple(choices)
+        self.scatterplot_y.grid(row=2, column=2, sticky=E+W)
 
         # visualise tabs
         tab_controller.pack(expand=1, fill="both")
@@ -154,24 +173,30 @@ class Interface(Frame):
         # send data
         command = f"{function}?"
         if parameters:
-            if function == "get_kepler_name":
+            if function == "kepler_name":
                 command += f"name={self.search_name_entry.get()}"
-            elif function == "get_koi_score":
+            elif function == "koi_score":
                 search_dict = {'select search type': "lt", 'less then': "lt", 'less then or equal to': "le", 'equal':"eq", 'greater then or equal to': "ge", 'greater then':"gt"}
                 command += f"score={self.search_score_entry.get()}&operand={search_dict[self.search_score_cbo.get()]}"
+            elif function == 'scatterplot':
+                command += f"x={self.scatterplot_x.get()}&y={self.scatterplot_y.get()}"
 
 
         self.client.send_data(command)
 
         # receive data and process
-        result = pickle.loads(eval(self.client.receive_data()))
+        if function == "confirmed" or function == "kepler_name" or function == "koi_score":
+            result = pickle.loads(eval(self.client.receive_data()))
+        else:
+            result = b''.join(eval(self.client.receive_data()))
+            result = Image.open(io.BytesIO(result))
         return result
 
     # add data to window
     def append_main_menu(self, function, tab):
         data = self.function_request(function['function'], function['parameters'])
 
-        if function['function'] == "get_confirmed" or function['function'] == "get_kepler_name" or function['function'] == "get_koi_score":
+        if function['function'] == "confirmed" or function['function'] == "kepler_name" or function['function'] == "koi_score":
             # add listbox + scrollbar
             self.scrollbar = Scrollbar(tab, orient=VERTICAL)
             self.datalst = Listbox(tab, yscrollcommand=self.scrollbar.set)
@@ -182,9 +207,16 @@ class Interface(Frame):
 
             for item in range(0,len(data["kepler_name"])-1):
                 self.datalst.insert(END, data.iloc[item]["kepler_name"]) if not isinstance(data.iloc[item]["kepler_name"],float) else self.datalst.insert(END, data.iloc[item]["kepoi_name"])
-            self.datalst.bind('<<ListboxSelect>>', self.onselect_confirmed)
+            self.datalst.bind('<<ListboxSelect>>', self.onselect_datalst)
 
-    def onselect_confirmed(self, event):
+        elif function['function'] == 'countplot' or function['function'] == 'scatterplot':
+            self.img_placholder = Label(tab)
+            self.img_placholder.grid(column=0,row=3,padx=5,pady=5,sticky=N+W+S+E)
+
+            self.img = ImageTk.PhotoImage(data)
+            self.img_placholder['image'] = self.img
+
+    def onselect_datalst(self, event):
         index = int(self.datalst.curselection()[0])
         value = self.datalst.get(index)
         logging.debug('You selected item %d: "%s"' % (index, value))
