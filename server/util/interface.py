@@ -57,15 +57,25 @@ class Interface(Frame):
         # client select
         Label(self, text="Connected clients").grid(column=0,row=0,padx=5,pady=10,sticky=W)
         # list of connected clients
-        self.scrollbar = Scrollbar(self, orient=VERTICAL)
-        self.clientlst = Listbox(self, yscrollcommand=self.scrollbar.set,width=30)
-        self.scrollbar.config(command=self.clientlst.yview)
+        self.client_scrollbar = Scrollbar(self, orient=VERTICAL)
+        self.clientlst = Listbox(self, yscrollcommand=self.client_scrollbar.set,width=30)
+        self.client_scrollbar.config(command=self.clientlst.yview)
         
         self.clientlst.grid(column=0,row=1,rowspan=5,pady=(0,10), sticky=N+S+W)
-        self.scrollbar.grid(column=0,row=1,rowspan=5, sticky=N+S+E)
+        self.client_scrollbar.grid(column=0,row=1,rowspan=5, sticky=N+S+E)
         # fill listbox with connected clients
         self.clientlst.bind('<<ListboxSelect>>', self.on_client_select)
 
+        # function usage
+        Label(self, text="Request counters").grid(column=0,row=6,padx=5,pady=5,sticky=W)
+        self.counter_scrollbar = Scrollbar(self, orient=VERTICAL)
+        self.clientlst = Listbox(self, yscrollcommand=self.counter_scrollbar.set,width=30)
+        self.counter_scrollbar.config(command=self.clientlst.yview)
+
+        self.clientlst.grid(column=0,row=7,rowspan=2,pady=(0,10), sticky=N+S+W)
+        self.counter_scrollbar.grid(column=0,row=7,rowspan=2, sticky=N+S+E)
+        # fill listbox with connected clients
+        
 
         # info selected client
         Label(self, text="Selected client").grid(column=1,row=0,padx=15,pady=10,sticky=W)
