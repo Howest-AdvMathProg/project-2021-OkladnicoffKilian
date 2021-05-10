@@ -37,37 +37,38 @@ class Interface(Frame):
         self.master.title("Server")
 
         # client select
-        Label(self, text="Connected clients").grid(column=0,row=0,padx=15,pady=10)
+        Label(self, text="Connected clients").grid(column=0,row=0,padx=5,pady=10,sticky=W)
         # list of connected clients
         self.scrollbar = Scrollbar(self, orient=VERTICAL)
-        self.clientlst = Listbox(self, yscrollcommand=self.scrollbar.set)
+        self.clientlst = Listbox(self, yscrollcommand=self.scrollbar.set,width=30)
         self.scrollbar.config(command=self.clientlst.yview)
         
-        self.clientlst.grid(column=0,row=1,rowspan=10,pady=(0,10), sticky=N+S+E+W)
-        self.scrollbar.grid(column=0,row=1,rowspan=10, sticky=N+S+E)
+        self.clientlst.grid(column=0,row=1,rowspan=5,pady=(0,10), sticky=N+S+W)
+        self.scrollbar.grid(column=0,row=1,rowspan=5, sticky=N+S+E)
         # fill listbox with connected clients
         self.clientlst.bind('<<ListboxSelect>>', self.on_client_select)
 
 
         # info selected client
-        Label(self, text="Selected client").grid(column=1,row=0,padx=15,pady=10)
-        Label(self, text="Session id:").grid(column=1,row=1,padx=15,pady=(0,10))
-        Label(self, text="Full name:").grid(column=1,row=2,padx=15,pady=(0,10))
-        Label(self, text="Nickname:").grid(column=1,row=3,padx=15,pady=(0,10))
-        Label(self, text="Email:").grid(column=1,row=4,padx=15,pady=(0,10))
+        Label(self, text="Selected client").grid(column=1,row=0,padx=15,pady=10,sticky=W)
+        Label(self, text="Session id:").grid(column=1,row=1,padx=15,pady=(0,5),sticky=W)
+        Label(self, text="Full name:").grid(column=1,row=2,padx=15,pady=(0,5),sticky=W)
+        Label(self, text="Nickname:").grid(column=1,row=3,padx=15,pady=(0,5),sticky=W)
+        Label(self, text="Email:").grid(column=1,row=4,padx=15,pady=(0,5),sticky=W)
         # selected variables and labels
         self.client_session_id = StringVar()
         self.client_fullname = StringVar()
         self.client_username = StringVar()
         self.client_email = StringVar()
-        self.lbl_client_session_id = Label(self, textvariable=self.client_session_id).grid(column=2,row=1,padx=15,pady=(0,10))
-        self.lbl_client_fullname = Label(self, textvariable=self.client_fullname).grid(column=2,row=2,padx=15,pady=(0,10))
-        self.lbl_client_username = Label(self, textvariable=self.client_username).grid(column=2,row=3,padx=15,pady=(0,10))
-        self.lbl_client_email = Label(self, textvariable=self.client_email).grid(column=2,row=4,padx=15,pady=(0,10))
+        self.lbl_client_session_id = Label(self, textvariable=self.client_session_id,width=30).grid(column=2,row=1,padx=15,pady=(0,10),sticky=W)
+        self.lbl_client_fullname = Label(self, textvariable=self.client_fullname).grid(column=2,row=2,padx=15,pady=(0,10),sticky=W)
+        self.lbl_client_username = Label(self, textvariable=self.client_username).grid(column=2,row=3,padx=15,pady=(0,10),sticky=W)
+        self.lbl_client_email = Label(self, textvariable=self.client_email).grid(column=2,row=4,padx=15,pady=(0,10),sticky=W)
 
 
         # connect to client button
-        Button(self, text="Message client", command=self.start_messaging).grid(column=1,columnspan=2,row=5)
+        Button(self, text="Message client", command=self.start_messaging).grid(column=1,row=5)
+        Button(self, text="Show logged commands").grid(column=2,row=5,sticky=W)
 
         # grid configuration
         Grid.rowconfigure(self, 5, weight=1)
