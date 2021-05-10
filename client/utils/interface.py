@@ -145,11 +145,10 @@ class Interface(Frame):
         # specifics for get_koi_score
         Label(tabs[2], text="Score").grid(column=0,row=2,padx=5,pady=5,sticky=W)
         self.search_score_entry = Entry(tabs[2], width=25)
-        self.search_score_entry.grid(column=1,row=2,pady=5)
-        choices = ('select search type', 'less then', 'less then or equal to', 'equal', 'greater then or equal to', 'greater then')             
+        self.search_score_entry.grid(column=1,row=2,pady=5,padx=5)
+        choices = ('less then', 'less then or equal to', 'equal', 'greater then or equal to', 'greater then')             
         self.search_score_cbo = ttk.Combobox(tabs[2], state="readonly", width=25)        
         self.search_score_cbo['values'] = choices        
-        self.search_score_cbo.current(0)
         self.search_score_cbo.grid(row=2, column=2, sticky=E+W)
 
         # specifics for scatterplot
@@ -162,8 +161,8 @@ class Interface(Frame):
             choices.append(choice.strip()[1:-1])
         self.scatterplot_x = ttk.Combobox(tabs[4], state="readonly", width=25)
         self.scatterplot_x['values'] = tuple(choices)
-        self.scatterplot_x.grid(row=2, column=1, sticky=E+W)
-        self.scatterplot_y = ttk.Combobox(tabs[4], state="readonly", width=25)
+        self.scatterplot_x.grid(row=2, column=1, padx=5, sticky=E+W)
+        self.scatterplot_y = ttk.Combobox(tabs[4], state="readonly", width=20)
         self.scatterplot_y['values'] = tuple(choices)
         self.scatterplot_y.grid(row=2, column=2, sticky=E+W)
 
@@ -179,7 +178,7 @@ class Interface(Frame):
             if function == "kepler_name":
                 command += f"name={self.search_name_entry.get()}"
             elif function == "koi_score":
-                search_dict = {'select search type': "lt", 'less then': "lt", 'less then or equal to': "le", 'equal':"eq", 'greater then or equal to': "ge", 'greater then':"gt"}
+                search_dict = {'less then': "lt", 'less then or equal to': "le", 'equal':"eq", 'greater then or equal to': "ge", 'greater then':"gt"}
                 command += f"score={self.search_score_entry.get()}&operand={search_dict[self.search_score_cbo.get()]}"
             elif function == 'scatterplot':
                 command += f"x={self.scatterplot_x.get()}&y={self.scatterplot_y.get()}"
@@ -214,10 +213,10 @@ class Interface(Frame):
 
         # visualise
         conf_scrollbar = Scrollbar(tab, orient=VERTICAL)
-        self.conflst = Listbox(tab, yscrollcommand=conf_scrollbar.set)
+        self.conflst = Listbox(tab, yscrollcommand=conf_scrollbar.set, width=20)
         conf_scrollbar.config(command=self.conflst.yview)
 
-        self.conflst.grid(column=0,row=3,rowspan=5,padx=5,pady=5,sticky=N+W+S)
+        self.conflst.grid(column=0,row=3,rowspan=5,padx=5,pady=(5,15),sticky=N+W+S)
         conf_scrollbar.grid(column=0,row=3,rowspan=5,sticky=N+S+E)
 
         # add data
@@ -227,23 +226,23 @@ class Interface(Frame):
 
         # placeholders for selected data
         self.conf_selected = StringVar()
-        Label(tab, text="Selected:").grid(column=1,row=3,padx=5,sticky=W)
+        Label(tab, text="Selected:").grid(column=1,row=3,padx=5,pady=5,sticky=W)
         Label(tab, textvariable=self.conf_selected).grid(column=2,row=3,sticky=W)
 
         self.conf_prad = StringVar()
-        Label(tab, text="Radius of planet in earth radii:").grid(column=1,row=4,padx=5,sticky=W)
+        Label(tab, text="Radius of planet in earth radii:").grid(column=1,row=4,padx=5,pady=5,sticky=W)
         Label(tab, textvariable=self.conf_prad).grid(column=2,row=4,sticky=W)
 
         self.conf_temperature = StringVar()
-        Label(tab, text="Surface temperature in Kelvin:").grid(column=1,row=5,padx=5,sticky=W)
+        Label(tab, text="Surface temperature in Kelvin:").grid(column=1,row=5,padx=5,pady=5,sticky=W)
         Label(tab, textvariable=self.conf_temperature).grid(column=2,row=5,sticky=W)
 
         self.conf_period = StringVar()
-        Label(tab, text="Days between planetary transits:").grid(column=1,row=6,padx=5,sticky=W)
+        Label(tab, text="Days between planetary transits:").grid(column=1,row=6,padx=5,pady=5,sticky=W)
         Label(tab, textvariable=self.conf_period).grid(column=2,row=6,sticky=W)
 
         self.conf_star_size = StringVar()
-        Label(tab, text="Photospheric star size in solar radii:").grid(column=1,row=7,padx=5,sticky=W)
+        Label(tab, text="Photospheric star size in solar radii:").grid(column=1,row=7,padx=5,pady=5,sticky=W)
         Label(tab, textvariable=self.conf_star_size).grid(column=2,row=7,sticky=W)
 
     def onselect_conflst(self, event):
@@ -265,10 +264,10 @@ class Interface(Frame):
 
         # visualise
         name_scrollbar = Scrollbar(tab, orient=VERTICAL)
-        self.namelst = Listbox(tab, yscrollcommand=name_scrollbar.set)
+        self.namelst = Listbox(tab, yscrollcommand=name_scrollbar.set, width=20)
         name_scrollbar.config(command=self.namelst.yview)
 
-        self.namelst.grid(column=0,row=3,rowspan=5,padx=5,pady=5,sticky=N+W+S)
+        self.namelst.grid(column=0,row=3,rowspan=5,padx=5,pady=(5,15),sticky=N+W+S)
         name_scrollbar.grid(column=0,row=3,rowspan=5,sticky=N+S+E)
 
         # add data
@@ -278,23 +277,23 @@ class Interface(Frame):
 
         # placeholders for selected data
         self.name_selected = StringVar()
-        Label(tab, text="Selected:").grid(column=1,row=3,padx=5,sticky=W)
+        Label(tab, text="Selected:").grid(column=1,row=3,padx=5,pady=5,sticky=W)
         Label(tab, textvariable=self.name_selected).grid(column=2,row=3,sticky=W)
 
         self.name_prad = StringVar()
-        Label(tab, text="Radius of planet in earth radii:").grid(column=1,row=4,padx=5,sticky=W)
+        Label(tab, text="Radius of planet in earth radii:").grid(column=1,row=4,padx=5,pady=5,sticky=W)
         Label(tab, textvariable=self.name_prad).grid(column=2,row=4,sticky=W)
 
         self.name_temperature = StringVar()
-        Label(tab, text="Surface temperature in Kelvin:").grid(column=1,row=5,padx=5,sticky=W)
+        Label(tab, text="Surface temperature in Kelvin:").grid(column=1,row=5,padx=5,pady=5,sticky=W)
         Label(tab, textvariable=self.name_temperature).grid(column=2,row=5,sticky=W)
 
         self.name_period = StringVar()
-        Label(tab, text="Days between planetary transits:").grid(column=1,row=6,padx=5,sticky=W)
+        Label(tab, text="Days between planetary transits:").grid(column=1,row=6,padx=5,pady=5,sticky=W)
         Label(tab, textvariable=self.name_period).grid(column=2,row=6,sticky=W)
 
         self.name_star_size = StringVar()
-        Label(tab, text="Photospheric star size in solar radii:").grid(column=1,row=7,padx=5,sticky=W)
+        Label(tab, text="Photospheric star size in solar radii:").grid(column=1,row=7,padx=5,pady=5,sticky=W)
         Label(tab, textvariable=self.name_star_size).grid(column=2,row=7,sticky=W)
 
     def onselect_namelst(self, event):
