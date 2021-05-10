@@ -181,7 +181,16 @@ class Interface(Frame):
                 search_dict = {'less then': "lt", 'less then or equal to': "le", 'equal':"eq", 'greater then or equal to': "ge", 'greater then':"gt"}
                 command += f"score={self.search_score_entry.get()}&operand={search_dict[self.search_score_cbo.get()]}"
             elif function == 'scatterplot':
-                command += f"x={self.scatterplot_x.get()}&y={self.scatterplot_y.get()}"
+                x = self.scatterplot_x.get()
+                y = self.scatterplot_y.get()
+
+                param = ""
+                if x != "": 
+                    param += f"x={x}"
+                if y != "":
+                    param += "&" if param != "" else ""
+                    param += f"y={y}"
+                command += param
 
 
         self.client.send_data(command)
