@@ -26,7 +26,7 @@ class Server:
             self.active_connections.append(self)
             self.s = sock
             self.addr = addr
-            self.commands = command_class()
+            self.commands = command_class(self)
             self.sessid = None
             self.connected = True
 
@@ -149,7 +149,7 @@ class Server:
         self.command_class = command_class
         self.max_clients = max_clients
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.running = True
+        self.__running = True
         self.start()
 
     #simple method to keep logging the amount of connected clients in a developments environment.
@@ -168,7 +168,7 @@ class Server:
         threading.Thread(target=self.log_active, daemon=True).start()
 
         #main server loop
-        while True:
+        while self.__running == True:
             #when connection is registered, log it and start a clienthandler
             sock_client, addr = self.s.accept()
             self.logger.log(logger.INFO, f"Got connection from {addr}")

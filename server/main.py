@@ -40,9 +40,10 @@ class Commands:
                 cls.endpoints[route] = func
             return wrapper
 
-    def __init__(self):
+    def __init__(self, socket):
         #read in dataset
         self.dataset = pd.read_csv(path.join(path.dirname(__file__), "data/kepler.csv"))
+        self.socket = socket
     
     @staticmethod
     def get_endpoint_counts():
@@ -66,7 +67,7 @@ class Commands:
     @count_function
     def login(self, uname, fullname, email):
         sessid = str(uuid.uuid4())
-        self.logged_in[sessid] = dict(username = uname, fullname = fullname, email = email)
+        self.logged_in[sessid] = dict(username = uname, fullname = fullname, email = email, socket=self.socket)
         return sessid
 
     #log the user out, and remove the session from logged in
@@ -201,6 +202,10 @@ def print_req_counts():
     while True:
         print(Commands.get_endpoint_counts())
         sleep(5)
+
+def send_message(guid, msg):
+    if guid in Commands.logged_in.keys():
+        Commands.logged_in[guid]['socket'].send(msg)
 
 try:
     #main logic for server side
