@@ -9,6 +9,7 @@ class Interface(Frame):
         self.master = master
         self.master.protocol("WM_DELETE_WINDOW", self.window_closed)
         self.command_class = command_class
+        self.selected = None
 
         self.pack(fill=BOTH, expand=1)
 
@@ -27,8 +28,10 @@ class Interface(Frame):
             self.command_class.logged_in[guid]['socket'].send(msg)
 
     def start_messaging(self):
+        if not self.selected:
+            print("no client selected")
+            return
         print("started message")
-        pass
 
     def content(self):
         self.master.title("Server")
@@ -48,20 +51,23 @@ class Interface(Frame):
 
         # info selected client
         Label(self, text="Selected client").grid(column=1,row=0,padx=15,pady=10)
-        Label(self, text="Full name:").grid(column=1,row=1,padx=15,pady=(0,10))
-        Label(self, text="Nickname:").grid(column=1,row=2,padx=15,pady=(0,10))
-        Label(self, text="Email:").grid(column=1,row=3,padx=15,pady=(0,10))
+        Label(self, text="Session id:").grid(column=1,row=1,padx=15,pady=(0,10))
+        Label(self, text="Full name:").grid(column=1,row=2,padx=15,pady=(0,10))
+        Label(self, text="Nickname:").grid(column=1,row=3,padx=15,pady=(0,10))
+        Label(self, text="Email:").grid(column=1,row=4,padx=15,pady=(0,10))
         # selected variables and labels
+        self.client_session_id = StringVar()
         self.client_fullname = StringVar()
         self.client_username = StringVar()
         self.client_email = StringVar()
-        self.lbl_client_fullname = Label(self, textvariable=self.client_fullname).grid(column=2,row=1,padx=15,pady=(0,10))
-        self.lbl_client_username = Label(self, textvariable=self.client_username).grid(column=2,row=2,padx=15,pady=(0,10))
-        self.lbl_client_email = Label(self, textvariable=self.client_email).grid(column=2,row=3,padx=15,pady=(0,10))
+        self.lbl_client_session_id = Label(self, textvariable=self.client_session_id).grid(column=2,row=1,padx=15,pady=(0,10))
+        self.lbl_client_fullname = Label(self, textvariable=self.client_fullname).grid(column=2,row=2,padx=15,pady=(0,10))
+        self.lbl_client_username = Label(self, textvariable=self.client_username).grid(column=2,row=3,padx=15,pady=(0,10))
+        self.lbl_client_email = Label(self, textvariable=self.client_email).grid(column=2,row=4,padx=15,pady=(0,10))
 
 
         # connect to client button
-        Button(self, text="Message client", command=self.start_messaging).grid(column=1,columnspan=2,row=4)
+        Button(self, text="Message client", command=self.start_messaging).grid(column=1,columnspan=2,row=5)
 
         # grid configuration
         Grid.rowconfigure(self, 5, weight=1)
@@ -69,11 +75,13 @@ class Interface(Frame):
 
     # gets called when a item in clientlst is selected
     def on_client_select(self, event):
-        selected = self.clientlst.get(self.clientlst.curselection()[0])
-        user = self.command_class.logged_in[selected]
-        self.client_username.set(user['username'])
-        self.client_fullname.set(user['fullname'])
-        self.client_email.set(user['email'])
+        if len(self.clientlst.curselection()) > 0:
+            self.selected = self.clientlst.get(self.clientlst.curselection()[0])
+            user = self.command_class.logged_in[self.selected]
+            self.client_session_id.set(self.selected)
+            self.client_username.set(user['username'])
+            self.client_fullname.set(user['fullname'])
+            self.client_email.set(user['email'])
             
 
     def window_closed(self):
