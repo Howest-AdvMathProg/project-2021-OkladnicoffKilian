@@ -180,8 +180,8 @@ class Interface(Frame):
             self.datalst.grid(column=0, row=3,padx=5,pady=5)
             self.scrollbar.grid(column=0,row=3,sticky=N+S+E)
 
-            for item in data["kepler_name"]:
-                self.datalst.insert(END, item)
+            for item in range(0,len(data["kepler_name"])-1):
+                self.datalst.insert(END, data.iloc[item]["kepler_name"]) if not isinstance(data.iloc[item]["kepler_name"],float) else self.datalst.insert(END, data.iloc[item]["kepoi_name"])
             self.datalst.bind('<<ListboxSelect>>', self.onselect_confirmed)
 
     def onselect_confirmed(self, event):
