@@ -12,7 +12,7 @@ from .client import Client
 functions = [{"function": "confirmed", "name": "Confirmed objects", "description": "Get confirmed kepler objects", "parameters": False},
              {"function": "kepler_name", "name": "Search kepler names", "description": "Get kepler object by searching its name", "parameters": True},
              {"function": "koi_score", "name": "Kepler  certainty", "description": "Search based on certainty that koi object is a kepler object", "parameters": True},
-             {"function": "countplot", "name": "Countplot status", "description": "Returns a countplot that shows how many koi objects where classified as kepler objects", "parameters": False},
+             {"function": "countplot", "name": "Countplot disposition", "description": "Returns a countplot that shows how many koi objects where classified as kepler objects", "parameters": False},
              {"function": "scatterplot", "name": "Analyze correlation", "description": "Select two columns to see if they are correlated", "parameters": True}]
 
 class Interface(Frame):
@@ -167,9 +167,6 @@ class Interface(Frame):
 
     # function request
     def function_request(self, function, parameters=None):
-        logging.debug(f"Function: {function}")
-        logging.debug(f"Paramenters: {parameters}")
-
         # send data
         command = f"{function}?"
         if parameters:
@@ -194,32 +191,55 @@ class Interface(Frame):
 
     # add data to window
     def append_main_menu(self, function, tab):
-        data = self.function_request(function['function'], function['parameters'])
+        self.data = self.function_request(function['function'], function['parameters'])
 
         if function['function'] == "confirmed" or function['function'] == "kepler_name" or function['function'] == "koi_score":
             # add listbox + scrollbar
             self.scrollbar = Scrollbar(tab, orient=VERTICAL)
             self.datalst = Listbox(tab, yscrollcommand=self.scrollbar.set)
             self.scrollbar.config(command=self.datalst.yview)
-
-            self.datalst.grid(column=0, row=3,padx=5,pady=5)
-            self.scrollbar.grid(column=0,row=3,sticky=N+S+E)
-
-            for item in range(0,len(data["kepler_name"])-1):
-                self.datalst.insert(END, data.iloc[item]["kepler_name"]) if not isinstance(data.iloc[item]["kepler_name"],float) else self.datalst.insert(END, data.iloc[item]["kepoi_name"])
+            # positioning
+            self.datalst.grid(column=0,row=3,rowspan=3,padx=5,pady=5,sticky=N+W+S)
+            self.scrollbar.grid(column=0,row=3,rowspan=3,sticky=N+S+E)
+            # add data to listbox + add functionality
+            for item in range(0,len(self.data["kepler_name"])-1):
+                self.datalst.insert(END, self.data.iloc[item]["kepler_name"]) if not isinstance(self.data.iloc[item]["kepler_name"],float) else self.datalst.insert(END, self.data.iloc[item]["kepoi_name"])
             self.datalst.bind('<<ListboxSelect>>', self.onselect_datalst)
+
+            # placeholders for selected data
+            self.selected = StringVar()
+
+            Label(tab, text="Selected:").grid(column=1,row=3,padx=5,sticky=W)
+            Label(tab, textvariable=self.selected).grid(column=2,row=3,sticky=W)
+
+            if function['function'] == 'koi_score':
+                self.koi_score = StringVar()
+                Label(tab, text="Koi score:").grid(column=1,row=4,padx=5,sticky=W)
+                Label(tab, textvariable=self.koi_score).grid(column=2,row=4,sticky=W)
+                self.koi_disposition = StringVar()
+                Label(tab, text="Koi disposition:").grid(column=1,row=5,padx=5,sticky=W)
+                Label(tab, textvariable=self.koi_disposition).grid(column=2,row=5,sticky=W)
+            # elif function['function'] == 'kepler_name':
 
         elif function['function'] == 'countplot' or function['function'] == 'scatterplot':
             self.img_placholder = Label(tab)
             self.img_placholder.grid(column=0,row=3,padx=5,pady=5,sticky=N+W+S+E)
 
-            self.img = ImageTk.PhotoImage(data)
+            self.img = ImageTk.PhotoImage(self.data)
             self.img_placholder['image'] = self.img
 
     def onselect_datalst(self, event):
         index = int(self.datalst.curselection()[0])
         value = self.datalst.get(index)
         logging.debug('You selected item %d: "%s"' % (index, value))
+        self.selected.set(value)
+
+        if "Kepler" in value:
+            self.koi_score.set(self.data.loc[self.data['kepler_name'] == value, 'koi_score'].iloc[0])
+            self.koi_disposition.set(self.data.loc[self.data['kepler_name'] == value, 'koi_disposition'].iloc[0])
+        else:
+            self.koi_score.set(self.data.loc[self.data['kepoi_name'] == value, 'koi_score'].iloc[0])
+            self.koi_disposition.set(self.data.loc[self.data['kepoi_name'] == value, 'koi_disposition'].iloc[0])
 
     # method called when window is closed
     def window_closed(self):
