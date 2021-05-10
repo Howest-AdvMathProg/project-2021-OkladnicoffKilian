@@ -35,7 +35,9 @@ class Commands:
         endpoints = []
 
         @classmethod
-        def route(cls, route):
+        def route(cls, route, func):
+            def wrapper(func):
+                print(func)
             cls.endpoints.append(route)
 
     def __init__(self):
@@ -87,7 +89,7 @@ class Commands:
             if score > 1 or score < 0:
                 raise ValueError()
             #return the filtered data as a pickled pandas dataframe
-            return pickle.dumps(self.dataset[ops[operand.lower()](self.dataset['koi_score'], score)].dropna(axis=0))
+            return pickle.dumps(self.dataset[ops[operand.lower()](self.dataset['koi_score'], score)]['koi_score'].dropna(axis=0))
         except Exception as e:
             logging.error(e)
             return 400 #will mainly trigger if operand is not defined
