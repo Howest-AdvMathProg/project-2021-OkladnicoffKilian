@@ -5,11 +5,14 @@ import re
 import json
 import pickle
 import pandas as pd
+import io
+from PIL import Image, ImageTk
 from .client import Client
 
 functions = [{"function": "confirmed", "name": "Confirmed objects", "description": "Get confirmed kepler objects", "parameters": False},
              {"function": "kepler_name", "name": "Search kepler names", "description": "Get kepler object by searching its name", "parameters": True},
-             {"function": "koi_score", "name": "FIX", "description": "Search based on certainty that koi object is a kepler object", "parameters": True},
+             {"function": "koi_score", "name": "Kepler  certainty", "description": "Search based on certainty that koi object is a kepler object", "parameters": True},
+             {"function": "countplot", "name": "Countplot status", "description": "Returns a countplot that shows how many koi objects where classified as kepler objects", "parameters": False},
              {"function": "", "name": "", "description": "", "parameters": False}]
 
 class Interface(Frame):
@@ -164,14 +167,16 @@ class Interface(Frame):
         self.client.send_data(command)
 
         # receive data and process
-        result = pickle.loads(eval(self.client.receive_data()))
+        if function != 'countplot':
+            result = pickle.loads(eval(self.client.receive_data()))
+        else:
+            result = b''.join(eval(self.client.receive_data()))
+            result = Image.open(io.BytesIO(result))
         return result
 
     # add data to window
     def append_main_menu(self, function, tab):
         data = self.function_request(function['function'], function['parameters'])
-
-        print(data)
 
         if function['function'] == "confirmed" or function['function'] == "kepler_name" or function['function'] == "koi_score":
             # add listbox + scrollbar
@@ -184,9 +189,16 @@ class Interface(Frame):
 
             for item in range(0,len(data["kepler_name"])-1):
                 self.datalst.insert(END, data.iloc[item]["kepler_name"]) if not isinstance(data.iloc[item]["kepler_name"],float) else self.datalst.insert(END, data.iloc[item]["kepoi_name"])
-            self.datalst.bind('<<ListboxSelect>>', self.onselect_confirmed)
+            self.datalst.bind('<<ListboxSelect>>', self.onselect_datalst)
 
-    def onselect_confirmed(self, event):
+        elif function['function'] == 'countplot':
+            self.img_placholder = Label(tab)
+            self.img_placholder.grid(column=0,row=3,padx=5,pady=5,sticky=N+W+S+E)
+
+            self.img = ImageTk.PhotoImage(data)
+            self.img_placholder['image'] = self.img
+
+    def onselect_datalst(self, event):
         index = int(self.datalst.curselection()[0])
         value = self.datalst.get(index)
         logging.debug('You selected item %d: "%s"' % (index, value))

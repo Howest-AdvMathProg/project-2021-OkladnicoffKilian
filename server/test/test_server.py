@@ -81,7 +81,9 @@ def get_countplot():
     msglength = int(s.recv(HEADERSIZE).decode(FORMAT))
     received = s.recv(msglength).decode(FORMAT)
     data = b''.join(eval(received))
+    print(data)
     img = Image.open(io.BytesIO(data))
+    print(img)
     return img
 
 def get_scatterplot(x=None,y=None):
