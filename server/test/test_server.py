@@ -8,12 +8,14 @@ from PIL import Image
 
 HEADERSIZE = 128
 FORMAT = 'utf-8'
+sockets = {}
 
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.connect((socket.gethostbyname(socket.gethostname()), 5000))
-sessid = ""
+def conn():
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect((socket.gethostbyname(socket.gethostname()), 5000))
+    sockets[s] = ""
 
-def login():
+def login(s):
     msg = "login?uname=kilian&fullname=kiokl&email=tets@email.com".encode(FORMAT)
     msglength = len(msg)
     msglength = str(msglength).encode(FORMAT)
@@ -112,25 +114,36 @@ def get_columns():
     return data
 
 try:
-    sessid = login()
-    data = confirmed()
-    print(data)
-    data = byname()
-    print(data)
-    data = get_score()
-    print(data)
-    data = get_countplot()
-    data.show()
-    data = get_scatterplot()
-    data.show()
-    data = get_columns()
-    print(data)
-    print(logout())
-    sleep(10)
+    for i in range(10):
+        try:
+            data = conn()
+        except ConnectionAbortedError:
+            pass
+        
+    for s in sockets.keys():
+        try:
+            sockets[s] = login(s)
+        except:
+            pass
+    # data = confirmed()
+    # print(data)
+    # data = byname()
+    # print(data)
+    # data = get_score()
+    # print(data)
+    # data = get_countplot()
+    # data.show()
+    # data = get_scatterplot()
+    # data.show()
+    # data = get_columns()
+    # print(data)
+    # print(logout())
+    sleep(30)
     
 except KeyboardInterrupt:
-    s.close()
     exit()
 except Exception as e:
-    s.close()
     raise e
+finally:
+    for s in sockets.keys():
+        s.close()

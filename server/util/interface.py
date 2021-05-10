@@ -1,17 +1,40 @@
 from tkinter import *
 import logging
+import threading
 
 class Interface(Frame):
-    def __init__(self, master=None):
+    def __init__(self, command_class, master=None):
         # set variables
         Frame.__init__(self, master)
         self.master = master
         self.master.protocol("WM_DELETE_WINDOW", self.window_closed)
+        self.command_class = command_class
 
         self.pack(fill=BOTH, expand=1)
 
         # call content creator
         self.content()
+        self.update()
+
+    def update(self):
+        self.clientlst.delete(0, 'end')
+
+        class User:
+            def __init__(self, username, name, email, sessionid):
+                self.username = username
+                self.name = name
+                self.email = email
+                self.session_id = sessionid
+            
+            def __repr__(self):
+                return self.username
+
+        [self.clientlst.insert('end', i) for i in [User(v["username"], v["fullname"], v["email"], k) for k,v in self.command_class.logged_in.items()]]
+        self.master.after(1000, self.update)
+
+    def send_message(self, guid, msg):
+        if guid in self.command_class.logged_in.keys():
+            self.command_class.logged_in[guid]['socket'].send(msg)
 
     def content(self):
         self.master.title("Server")
@@ -26,7 +49,7 @@ class Interface(Frame):
         self.clientlst.grid(column=0,row=1,rowspan=4,pady=(0,10), sticky=N+S+E+W)
         self.scrollbar.grid(column=0,row=1,rowspan=4, sticky=N+S+E)
         # fill listbox with connected clients
-        # self.clientlst.bind('<<ListboxSelect>>', self.on_client_select)
+        self.clientlst.bind('<<ListboxSelect>>', self.on_client_select)
 
 
         # info selected client
@@ -52,9 +75,7 @@ class Interface(Frame):
 
     # gets called when a item in clientlst is selected
     def on_client_select(self, event):
-        index = int(self.clientlst.curselection()[0])
-        value = self.clientlst.get(index)
-        logging.debug(f"Selected client {index}: {value}")
+        print(event)
 
     def window_closed(self):
         exit()
