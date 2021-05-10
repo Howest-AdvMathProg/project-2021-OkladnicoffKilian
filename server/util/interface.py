@@ -76,9 +76,8 @@ class Interface(Frame):
 
         self.reqlst.grid(column=0,row=7,rowspan=2,pady=(0,10), sticky=N+S+W)
         self.counter_scrollbar.grid(column=0,row=7,rowspan=2, sticky=N+S+E)
-        # fill listbox with connected clients
+        # fill listbox with request stuff
         
-
         # info selected client
         Label(self, text="Selected client").grid(column=1,row=0,padx=15,pady=10,sticky=W)
         Label(self, text="Session id:").grid(column=1,row=1,padx=15,pady=(0,5),sticky=W)
@@ -98,10 +97,19 @@ class Interface(Frame):
 
         # connect to client button
         Button(self, text="Message client", command=self.start_messaging).grid(column=1,row=5)
-        Button(self, text="Show logged commands").grid(column=2,row=5,sticky=W)
+        # Button(self, text="Show logged commands").grid(column=2,row=5,sticky=W)
+
+        # user logs
+        # Label(self, text="User logs").grid(column=2,row=6,padx=5,pady=5,sticky=W)
+        # self.userlog_scrollbar = Scrollbar(self, orient=VERTICAL)
+        # self.clientlst = Listbox(self, yscrollcommand=self.userlog_scrollbar.set,width=30)
+        # self.userlog_scrollbar.config(command=self.clientlst.yview)
+
+        # self.clientlst.grid(column=0,row=7,rowspan=2,pady=(0,10), sticky=N+S+W)
+        # self.userlog_scrollbar.grid(column=0,row=7,rowspan=2, sticky=N+S+E)
 
         # grid configuration
-        Grid.rowconfigure(self, 5, weight=1)
+        Grid.rowconfigure(self, 10, weight=1)
         Grid.columnconfigure(self, 3, weight=1)
 
     # gets called when a item in clientlst is selected
