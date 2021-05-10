@@ -43,7 +43,7 @@ class Interface(Frame):
         if not self.selected:
             print("no client selected")
             return
-        print("started message")
+        self.send_message(self.selected, "test")
 
     def view_user_logs(self):
         if not self.selected:

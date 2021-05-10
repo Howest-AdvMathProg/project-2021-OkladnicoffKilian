@@ -8,6 +8,7 @@ import pandas as pd
 import io
 from PIL import Image, ImageTk
 from .client import Client
+import threading
 
 functions = [{"function": "confirmed", "name": "Confirmed objects", "description": "Get confirmed kepler objects", "parameters": False},
              {"function": "kepler_name", "name": "Search kepler names", "description": "Get kepler object by searching its name", "parameters": True},
@@ -16,6 +17,8 @@ functions = [{"function": "confirmed", "name": "Confirmed objects", "description
              {"function": "scatterplot", "name": "Analyze correlation", "description": "Select two columns to see if they are correlated", "parameters": True}]
 
 class Interface(Frame):
+    processing = False
+
     def __init__(self, master=None):
         # set variables
         Frame.__init__(self, master)
@@ -86,10 +89,12 @@ class Interface(Frame):
                         # send user login data
                         data = f"login?fullname={self.entry_name.get()}&uname={self.entry_uname.get()}&email={self.entry_email.get()}"
                         self.client.send_data(data)
+                        self.__class__.processing = True
 
                         # receive user id
                         self.client.session_id = self.client.receive_data()
-                    
+                        self.__class__.processing = False
+
                         # load new window
                         self.reset_window()
                         self.main_menu()
@@ -106,6 +111,12 @@ class Interface(Frame):
         else:
             logging.error("All fields must be filled in")
             self.login_error.set("All fields must be filled in")
+
+    def listen_for_notification(self):
+        if self.__class__.processing == False:
+            data = self.client.receive_data()
+            self.notificationlst.insert('end', data)
+        self.master.after(1000, self.listen_for_notification)
 
     # main menu
     def main_menu(self):
@@ -170,6 +181,17 @@ class Interface(Frame):
         # visualise tabs
         tab_controller.pack(expand=1, fill="both")
 
+        # client select
+        Label(self, text="Connected clients").grid(column=2,row=0,padx=5,pady=10,sticky=W)
+        # list of connected clients
+        not_scrollbar = Scrollbar(self, orient=VERTICAL)
+        self.notificationlst = Listbox(self, yscrollcommand=not_scrollbar.set,width=30)
+        not_scrollbar.config(command=self.notificationlst.yview)
+        
+        self.notificationlst.grid(column=2,row=1,rowspan=5,pady=(0,10), sticky=N+S+W)
+        not_scrollbar.grid(column=2,row=1,rowspan=5, sticky=N+S+E)
+        self.listen_for_notification()
+
     # function request
     def function_request(self, function, parameters=None):
         # send data
@@ -194,6 +216,7 @@ class Interface(Frame):
 
 
         self.client.send_data(command)
+        self.__class__.processing = True
 
         # receive data and process
         if function == "confirmed" or function == "kepler_name" or function == "koi_score":
@@ -201,6 +224,7 @@ class Interface(Frame):
         else:
             result = b''.join(eval(self.client.receive_data()))
             result = Image.open(io.BytesIO(result))
+        self.__class__.processing = False
         return result
 
     # add image to window
