@@ -30,12 +30,21 @@ class Commands:
 
     #init logger
     logger = logger.Logger("Commands", file=True, loglevel=logging.INFO, fileformatter=logging.Formatter("[%(asctime)s] %(user)s(%(uname)s) requested %(msg)s"))
+    
+    class Endpoints():
+        endpoints = []
+
+        @classmethod
+        def route(cls, route):
+            cls.endpoints.append(route)
 
     def __init__(self):
         #read in dataset
         self.dataset = pd.read_csv(path.join(path.dirname(__file__), "data/kepler.csv"))
     
     #return all koi object with a confirmed disposition
+    # @Endpoints.route("confirmed")
+    @count_function
     def get_confirmed(self):
         return pickle.dumps(self.dataset[self.dataset['koi_disposition'] == 'CONFIRMED'])
     
@@ -78,7 +87,7 @@ class Commands:
             if score > 1 or score < 0:
                 raise ValueError()
             #return the filtered data as a pickled pandas dataframe
-            return pickle.dumps(self.dataset[ops[operand.lower()](self.dataset['koi_score'], score)])
+            return pickle.dumps(self.dataset[ops[operand.lower()](self.dataset['koi_score'], score)].dropna(axis=0))
         except Exception as e:
             logging.error(e)
             return 400 #will mainly trigger if operand is not defined
@@ -171,6 +180,9 @@ class Commands:
 logging.basicConfig(level=logging.DEBUG, format="%(name)s:%(levelname)s --> %(msg)s")
 logging.getLogger('matplotlib.font_manager').setLevel(logging.CRITICAL) #ignore matplotlib messages concerning fonts
 threading.Thread(target=Server, args=(Commands,), daemon=True).start() #start the server in a daemon. This makes the programm quittable with ^C, etc.
+
+def request_counts():
+    return {i:i.counter for i in [c for c in Commands.__dict__.keys() if not c.lower().startswith("__")]}
 
 try:
     #main logic for server side
