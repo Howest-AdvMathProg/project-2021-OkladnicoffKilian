@@ -26,11 +26,6 @@ def count_function(func):
 
 #class containing all endpoints and command related code
 class Commands:
-    logged_in = {}
-
-    #init logger
-    logger = logger.Logger("Commands", file=True, loglevel=logging.INFO, fileformatter=logging.Formatter("[%(asctime)s] %(user)s(%(uname)s) requested %(msg)s"))
-    
     class Endpoints:
         endpoints = {}
 
@@ -38,7 +33,12 @@ class Commands:
         def route(cls, route):
             def wrapper(func):
                 cls.endpoints[route] = func
+                return func
             return wrapper
+    
+    logged_in = {}
+    #init logger
+    logger = logger.Logger("Commands", file=True, loglevel=logging.INFO, fileformatter=logging.Formatter("[%(asctime)s] %(user)s(%(uname)s) requested %(msg)s"))
 
     def __init__(self, socket):
         #read in dataset
@@ -195,7 +195,8 @@ class Commands:
 
 logging.basicConfig(level=logging.DEBUG, format="%(name)s:%(levelname)s --> %(msg)s")
 logging.getLogger('matplotlib.font_manager').setLevel(logging.CRITICAL) #ignore matplotlib messages concerning fonts
-threading.Thread(target=Server, args=(Commands,), daemon=True).start() #start the server in a daemon. This makes the programm quittable with ^C, etc.
+params = {'command_class': Commands, "max_clients": 50}
+threading.Thread(target=Server, kwargs=params, daemon=True).start() #start the server in a daemon. This makes the programm quittable with ^C, etc.
 
 #test function
 def print_req_counts():
@@ -203,14 +204,10 @@ def print_req_counts():
         print(Commands.get_endpoint_counts())
         sleep(5)
 
-def send_message(guid, msg):
-    if guid in Commands.logged_in.keys():
-        Commands.logged_in[guid]['socket'].send(msg)
-
 try:
     #main logic for server side
     root = Tk()
-    gui = Interface(master=root)
+    gui = Interface(master=root, command_class=Commands)
     gui.mainloop()
 except KeyboardInterrupt:
     exit()

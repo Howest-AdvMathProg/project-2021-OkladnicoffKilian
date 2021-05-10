@@ -128,14 +128,15 @@ class Server:
                     except Exception as e: # any other error that is not expected
                         self.logger.log(logger.ERROR, str(type(e)) + " | " + str(e))
                         self.connected = False
-            try: #when the connection is lost, the user will be logged out, and the socker will be closed
+            try: #when the connection is lost, the user will be logged out, and the socket will be closed
                 try:
-                    self.commands.logout(self.sessid)
+                    if self.sessid:
+                        self.commands.logout(self.sessid)
                 except Exception as e:
                     self.logger.log(logger.DEBUG, e)
                 self.s.close()
-            except:
-                pass
+            except Exception as e:
+                self.logger.log(logger.CRITICAL, e)
             self.logger.log(logger.INFO, "Closing socket...")
 
     def __init__(self, command_class, host=socket.gethostbyname(socket.gethostname()), port=5000, max_clients=5):
@@ -156,8 +157,9 @@ class Server:
     def log_active(self):
         while True:
             self.logger.log(logger.DEBUG, f"Active connections {len(self.ClientHandler.active_connections)}")
-            self.logger.log(logger.DEBUG, f"Endpoints {self.command_class.Endpoints.endpoints}")
-            sleep(240)
+            self.logger.log(logger.DEBUG, f"Available endpoints {self.command_class.Endpoints.endpoints.keys()}")
+            self.logger.log(logger.DEBUG, f"Logged in {list(self.command_class.logged_in.keys())}")
+            sleep(10)
 
     #start the server
     def start(self):
