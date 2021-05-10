@@ -31,14 +31,15 @@ class Commands:
     #init logger
     logger = logger.Logger("Commands", file=True, loglevel=logging.INFO, fileformatter=logging.Formatter("[%(asctime)s] %(user)s(%(uname)s) requested %(msg)s"))
     
-    class Endpoints():
-        endpoints = []
+    class Endpoints:
+        endpoints = {}
 
         @classmethod
-        def route(cls, route, func):
+        def route(cls, route):
+            print("route executed")
             def wrapper(func):
                 print(func)
-            cls.endpoints.append(route)
+                cls.endpoints[route] = func
 
     def __init__(self):
         #read in dataset
@@ -89,7 +90,7 @@ class Commands:
             if score > 1 or score < 0:
                 raise ValueError()
             #return the filtered data as a pickled pandas dataframe
-            return pickle.dumps(self.dataset[ops[operand.lower()](self.dataset['koi_score'], score)]['koi_score'].dropna(axis=0))
+            return pickle.dumps(self.dataset[ops[operand.lower()](self.dataset['koi_score'], score)])
         except Exception as e:
             logging.error(e)
             return 400 #will mainly trigger if operand is not defined
