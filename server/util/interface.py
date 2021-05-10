@@ -95,16 +95,7 @@ class Interface(Frame):
 
         # connect to client button
         Button(self, text="Message client", command=self.start_messaging).grid(column=1,row=5)
-        # Button(self, text="Show logged commands").grid(column=2,row=5,sticky=W)
-
-        # user logs
-        # Label(self, text="User logs").grid(column=2,row=6,padx=5,pady=5,sticky=W)
-        # self.userlog_scrollbar = Scrollbar(self, orient=VERTICAL)
-        # self.clientlst = Listbox(self, yscrollcommand=self.userlog_scrollbar.set,width=30)
-        # self.userlog_scrollbar.config(command=self.clientlst.yview)
-
-        # self.clientlst.grid(column=0,row=7,rowspan=2,pady=(0,10), sticky=N+S+W)
-        # self.userlog_scrollbar.grid(column=0,row=7,rowspan=2, sticky=N+S+E)
+        Button(self, text="Show logged commands", command=self.show_userlogs).grid(column=2,row=5,sticky=W)
 
         # grid configuration
         Grid.rowconfigure(self, 10, weight=1)
@@ -120,6 +111,15 @@ class Interface(Frame):
             self.client_fullname.set(user['fullname'])
             self.client_email.set(user['email'])
             
+    def show_userlogs(self):
+        # user logs
+        Label(self, text="User logs").grid(column=1,row=6,padx=5,pady=5,sticky=W)
+        self.userlog_scrollbar = Scrollbar(self, orient=VERTICAL)
+        self.userloglst = Listbox(self, yscrollcommand=self.userlog_scrollbar.set,width=30)
+        self.userlog_scrollbar.config(command=self.userloglst.yview)
+
+        self.userloglst.grid(column=1,columnspan=2,row=7,rowspan=2,padx=10,pady=(0,5), sticky=N+S+W)
+        self.userlog_scrollbar.grid(column=1,columnspan=2,row=7,rowspan=2,pady=(0,5), sticky=N+S+E)
 
     def window_closed(self):
         exit()
