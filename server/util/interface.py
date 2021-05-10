@@ -25,6 +25,13 @@ class Interface(Frame):
         
         self.reqlst.delete(0, 'end')
         [self.reqlst.insert('end', f"{k} | {v} times called") for k,v in sorted(self.command_class.get_endpoint_counts().items(), key=lambda x: x[1], reverse=True)]
+        
+        try:
+            self.userloglst.delete(0, 'end')
+            [self.userloglst.insert('end', i) for i in self.filter_logs(self.selected)]
+        except:
+            pass
+
         self.master.after(1000, self.update)
 
     def send_message(self, guid, msg):
@@ -46,12 +53,6 @@ class Interface(Frame):
             print("no client selected")
             return
         self.send_message(self.selected, "test")
-
-    def view_user_logs(self):
-        if not self.selected:
-            print("no client selected")
-            return
-        data = self.filter_logs(self.selected)
 
     def content(self):
         self.master.title("Server")
@@ -117,10 +118,10 @@ class Interface(Frame):
         # user logs
         Label(self, text="User logs").grid(column=1,row=6,padx=5,pady=5,sticky=W)
         self.userlog_scrollbar = Scrollbar(self, orient=VERTICAL)
-        self.userloglst = Listbox(self, yscrollcommand=self.userlog_scrollbar.set,width=30)
+        self.userloglst = Listbox(self, yscrollcommand=self.userlog_scrollbar.set,width=100)
         self.userlog_scrollbar.config(command=self.userloglst.yview)
 
-        self.userloglst.grid(column=1,columnspan=2,row=7,rowspan=2,padx=10,pady=(0,5), sticky=N+S+W)
+        self.userloglst.grid(column=1,columnspan=2,row=7,rowspan=2,padx=(5,20),pady=(0,10), sticky=N+S+W)
         self.userlog_scrollbar.grid(column=1,columnspan=2,row=7,rowspan=2,pady=(0,5), sticky=N+S+E)
 
     def window_closed(self):
