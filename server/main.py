@@ -195,7 +195,8 @@ class Commands:
 
 logging.basicConfig(level=logging.DEBUG, format="%(name)s:%(levelname)s --> %(msg)s")
 logging.getLogger('matplotlib.font_manager').setLevel(logging.CRITICAL) #ignore matplotlib messages concerning fonts
-threading.Thread(target=Server, args=(Commands,), daemon=True).start() #start the server in a daemon. This makes the programm quittable with ^C, etc.
+params = {'command_class': Commands, "max_clients": 50}
+threading.Thread(target=Server, kwargs=params, daemon=True).start() #start the server in a daemon. This makes the programm quittable with ^C, etc.
 
 #test function
 def print_req_counts():

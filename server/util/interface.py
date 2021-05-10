@@ -18,23 +18,17 @@ class Interface(Frame):
 
     def update(self):
         self.clientlst.delete(0, 'end')
-
-        class User:
-            def __init__(self, username, name, email, sessionid):
-                self.username = username
-                self.name = name
-                self.email = email
-                self.session_id = sessionid
-            
-            def __repr__(self):
-                return self.username
-
-        [self.clientlst.insert('end', i) for i in [User(v["username"], v["fullname"], v["email"], k) for k,v in self.command_class.logged_in.items()]]
+        [self.clientlst.insert('end', i) for i in [k for k in self.command_class.logged_in]]
+        
         self.master.after(1000, self.update)
 
     def send_message(self, guid, msg):
         if guid in self.command_class.logged_in.keys():
             self.command_class.logged_in[guid]['socket'].send(msg)
+
+    def start_messaging(self):
+        print("started message")
+        pass
 
     def content(self):
         self.master.title("Server")
@@ -46,8 +40,8 @@ class Interface(Frame):
         self.clientlst = Listbox(self, yscrollcommand=self.scrollbar.set)
         self.scrollbar.config(command=self.clientlst.yview)
         
-        self.clientlst.grid(column=0,row=1,rowspan=4,pady=(0,10), sticky=N+S+E+W)
-        self.scrollbar.grid(column=0,row=1,rowspan=4, sticky=N+S+E)
+        self.clientlst.grid(column=0,row=1,rowspan=10,pady=(0,10), sticky=N+S+E+W)
+        self.scrollbar.grid(column=0,row=1,rowspan=10, sticky=N+S+E)
         # fill listbox with connected clients
         self.clientlst.bind('<<ListboxSelect>>', self.on_client_select)
 
@@ -67,7 +61,7 @@ class Interface(Frame):
 
 
         # connect to client button
-        Button(self, text="Message client").grid(column=1,columnspan=2,row=4)
+        Button(self, text="Message client", command=self.start_messaging).grid(column=1,columnspan=2,row=4)
 
         # grid configuration
         Grid.rowconfigure(self, 5, weight=1)
@@ -75,7 +69,12 @@ class Interface(Frame):
 
     # gets called when a item in clientlst is selected
     def on_client_select(self, event):
-        print(event)
+        selected = self.clientlst.get(self.clientlst.curselection()[0])
+        user = self.command_class.logged_in[selected]
+        self.client_username.set(user['username'])
+        self.client_fullname.set(user['fullname'])
+        self.client_email.set(user['email'])
+            
 
     def window_closed(self):
         exit()
