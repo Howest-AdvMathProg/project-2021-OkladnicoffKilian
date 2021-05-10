@@ -104,7 +104,8 @@ class Server:
                                 if self.sessid in self.commands.logged_in.keys(): #if session id is still registered send error
                                     self.send(409) # user is already logged in and needs to log out
                                     continue
-                        retval = getattr(self.commands, data[0])(**data[1]) if len(data) > 1 else getattr(self.commands, data[0])() #execute the requested endpoint with its parameters
+                        # retval = getattr(self.commands, data[0])(**data[1]) if len(data) > 1 else getattr(self.commands, data[0])() #execute the requested endpoint with its parameters
+                        retval = self.commands.Endpoints.endpoints[data[0]](self.commands, **data[1]) if len(data) > 1 else self.commands.Endpoints.endpoints[data[0]](self.commands) #execute the requested endpoint with its parameters
                         # print(getattr(self.commands, data[0]).counter) #test print, rarely usefull
                         
                         #if the user just logged in, link the session id to this socket
@@ -155,6 +156,7 @@ class Server:
     def log_active(self):
         while True:
             self.logger.log(logger.DEBUG, f"Active connections {len(self.ClientHandler.active_connections)}")
+            self.logger.log(logger.DEBUG, f"Endpoints {self.command_class.Endpoints.endpoints}")
             sleep(240)
 
     #start the server

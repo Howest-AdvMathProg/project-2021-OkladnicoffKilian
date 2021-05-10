@@ -25,7 +25,7 @@ def login():
     return data
 
 def confirmed():
-    msg = f"get_confirmed?session_id={sessid}".encode(FORMAT)
+    msg = f"confirmed?session_id={sessid}".encode(FORMAT)
     msglength = len(msg)
     msglength = str(msglength).encode(FORMAT)
     msglength += b' ' * (HEADERSIZE - len(msglength))
@@ -37,7 +37,7 @@ def confirmed():
     return obj
 
 def byname():
-    msg = f"get_kepler_name?name=Kepler-227&session_id={sessid}".encode(FORMAT)
+    msg = f"kepler_name?name=Kepler-227&session_id={sessid}".encode(FORMAT)
     msglength = len(msg)
     msglength = str(msglength).encode(FORMAT)
     msglength += b' ' * (HEADERSIZE - len(msglength))
@@ -60,7 +60,7 @@ def logout():
     return data
 
 def get_score():
-    msg = f"get_koi_score?score=0.5&session_id={sessid}&operand=gt".encode(FORMAT)
+    msg = f"koi_score?score=0.5&session_id={sessid}&operand=gt".encode(FORMAT)
     msglength = len(msg)
     msglength = str(msglength).encode(FORMAT)
     msglength += b' ' * (HEADERSIZE - len(msglength))
@@ -101,7 +101,7 @@ def get_scatterplot(x=None,y=None):
     return img
 
 def get_columns():
-    msg = f"get_columns?session_id={sessid}".encode(FORMAT)
+    msg = f"column_names?session_id={sessid}".encode(FORMAT)
     msglength = len(msg)
     msglength = str(msglength).encode(FORMAT)
     msglength += b' ' * (HEADERSIZE - len(msglength))
@@ -113,8 +113,19 @@ def get_columns():
 
 try:
     sessid = login()
+    data = confirmed()
+    print(data)
     data = byname()
     print(data)
+    data = get_score()
+    print(data)
+    data = get_countplot()
+    data.show()
+    data = get_scatterplot()
+    data.show()
+    data = get_columns()
+    print(data)
+    print(logout())
     sleep(10)
     
 except KeyboardInterrupt:

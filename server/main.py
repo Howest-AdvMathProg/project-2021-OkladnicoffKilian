@@ -36,28 +36,29 @@ class Commands:
 
         @classmethod
         def route(cls, route):
-            print("route executed")
             def wrapper(func):
-                print(func)
                 cls.endpoints[route] = func
+            return wrapper
 
     def __init__(self):
         #read in dataset
         self.dataset = pd.read_csv(path.join(path.dirname(__file__), "data/kepler.csv"))
     
     #return all koi object with a confirmed disposition
-    # @Endpoints.route("confirmed")
+    @Endpoints.route("confirmed")
     @count_function
     def get_confirmed(self):
         return pickle.dumps(self.dataset[self.dataset['koi_disposition'] == 'CONFIRMED'])
     
     #get koi objects by search query on the name. May be incomplete name
+    @Endpoints.route("kepler_name")
     @count_function
     def get_kepler_name(self, name):
         return pickle.dumps(self.dataset[self.dataset['kepler_name'].str.contains(name, na=False, regex=False)])
 
 
     #login the user and send back the session id
+    @Endpoints.route("login")
     @count_function
     def login(self, uname, fullname, email):
         sessid = str(uuid.uuid4())
@@ -65,6 +66,7 @@ class Commands:
         return sessid
 
     #log the user out, and remove the session from logged in
+    @Endpoints.route("logout")
     @count_function
     def logout(self, session_id):
         if session_id in self.logged_in.keys():
@@ -73,6 +75,7 @@ class Commands:
         return 404
     
     #filter by koi score
+    @Endpoints.route("koi_score")
     @count_function
     def get_koi_score(self, score, operand='lt'):
         try:
@@ -96,6 +99,7 @@ class Commands:
             return 400 #will mainly trigger if operand is not defined
 
     #get a countplot of the koi dispositions
+    @Endpoints.route("countplot")
     @count_function
     def countplot(self):
 
@@ -104,10 +108,12 @@ class Commands:
         dirpath = path.dirname(__file__) + f"/temp"
         fp = dirpath + f"/{temp_id}.png"
         
-        sns.countplot(data=self.dataset['koi_disposition'].dropna(axis=0, inplace=False), x="koi_disposition")
+        dataset = self.dataset.copy()
+        dataset['koi_disposition'].dropna(axis=0, inplace=True)
+        sns.countplot(data=dataset, x='koi_disposition')
         if not path.exists(dirpath):
             os.mkdir(dirpath)
-        
+        del dataset
         #reset pyplot and save the graph
         plt.savefig(fp)
         plt.close('all')
@@ -136,11 +142,13 @@ class Commands:
         return data
 
     #get all possible column filters for scatterplot
+    @Endpoints.route("column_names")
     @count_function
     def get_columns(self):
         return list(self.dataset.columns)
 
     #plot 2 columns in a scatterplot to analyze correlation
+    @Endpoints.route("scatterplot")
     @count_function
     def scatterplot(self, x='koi_teq', y='koi_srad'):
 
