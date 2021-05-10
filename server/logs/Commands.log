@@ -104,3 +104,10 @@
 [2021-05-10 12:40:05,919] 310b7b43-7bdb-4ff2-ab8c-f978e6bea1bf(kilian) requested countplot
 [2021-05-10 12:40:07,543] 310b7b43-7bdb-4ff2-ab8c-f978e6bea1bf(kilian) requested scatterplot
 [2021-05-10 12:40:08,788] 310b7b43-7bdb-4ff2-ab8c-f978e6bea1bf(kilian) requested column_names
+[2021-05-10 12:46:32,679] f067af35-b3a8-4c51-806a-4433079823ab(kilian) requested login
+[2021-05-10 12:46:32,683] f067af35-b3a8-4c51-806a-4433079823ab(kilian) requested confirmed
+[2021-05-10 12:46:32,760] f067af35-b3a8-4c51-806a-4433079823ab(kilian) requested kepler_name
+[2021-05-10 12:46:32,805] f067af35-b3a8-4c51-806a-4433079823ab(kilian) requested koi_score
+[2021-05-10 12:46:32,978] f067af35-b3a8-4c51-806a-4433079823ab(kilian) requested countplot
+[2021-05-10 12:46:34,489] f067af35-b3a8-4c51-806a-4433079823ab(kilian) requested scatterplot
+[2021-05-10 12:46:35,710] f067af35-b3a8-4c51-806a-4433079823ab(kilian) requested column_names
