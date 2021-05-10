@@ -44,6 +44,10 @@ class Commands:
         #read in dataset
         self.dataset = pd.read_csv(path.join(path.dirname(__file__), "data/kepler.csv"))
     
+    @staticmethod
+    def get_endpoint_counts():
+        return {k: v.counter for k,v in Commands.Endpoints.endpoints.items()}
+
     #return all koi object with a confirmed disposition
     @Endpoints.route("confirmed")
     @count_function
@@ -192,8 +196,11 @@ logging.basicConfig(level=logging.DEBUG, format="%(name)s:%(levelname)s --> %(ms
 logging.getLogger('matplotlib.font_manager').setLevel(logging.CRITICAL) #ignore matplotlib messages concerning fonts
 threading.Thread(target=Server, args=(Commands,), daemon=True).start() #start the server in a daemon. This makes the programm quittable with ^C, etc.
 
-def request_counts():
-    return {i:i.counter for i in [c for c in Commands.__dict__.keys() if not c.lower().startswith("__")]}
+#test function
+def print_req_counts():
+    while True:
+        print(Commands.get_endpoint_counts())
+        sleep(5)
 
 try:
     #main logic for server side
