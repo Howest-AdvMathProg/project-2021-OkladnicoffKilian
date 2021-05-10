@@ -116,7 +116,7 @@ def get_columns():
     return data
 
 try:
-    for i in range(30):
+    for i in range(5):
         try:
             data = conn()
         except ConnectionAbortedError:

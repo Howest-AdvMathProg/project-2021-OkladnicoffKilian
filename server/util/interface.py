@@ -1,6 +1,8 @@
 from tkinter import *
 import logging
 import threading
+import re
+from os import path
 
 class Interface(Frame):
     def __init__(self, command_class, master=None):
@@ -27,11 +29,27 @@ class Interface(Frame):
         if guid in self.command_class.logged_in.keys():
             self.command_class.logged_in[guid]['socket'].send(msg)
 
+    def filter_logs(self, guid):
+        user = self.command_class.logged_in[guid]["username"]
+        fp = path.join(path.dirname(__file__), "../logs/Commands.log")
+        if path.exists(fp):
+            entries = []
+            with open(fp, 'r') as fo:
+                [entries.append(line) for line in fo if re.match(f"\[.*\] {guid}\({user}\)", line)]
+                fo.close()
+            return entries
+
     def start_messaging(self):
         if not self.selected:
             print("no client selected")
             return
         print("started message")
+
+    def view_user_logs(self):
+        if not self.selected:
+            print("no client selected")
+            return
+        data = self.filter_logs(self.selected)
 
     def content(self):
         self.master.title("Server")
@@ -67,7 +85,7 @@ class Interface(Frame):
 
 
         # connect to client button
-        Button(self, text="Message client", command=self.start_messaging).grid(column=1,columnspan=2,row=5)
+        Button(self, text="Message client").grid(column=1,columnspan=2,row=5)
 
         # grid configuration
         Grid.rowconfigure(self, 5, weight=1)
