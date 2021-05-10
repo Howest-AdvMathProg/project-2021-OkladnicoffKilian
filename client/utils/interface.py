@@ -7,8 +7,9 @@ import pickle
 import pandas as pd
 from .client import Client
 
-functions = [{"function": "get_confirmed", "name": "Confirmed objects", "description": "Get confirmed kepler objects", "parameters": []}, 
-             {"function": "", "name": "", "description": "", "parameters": []}]
+functions = [{"function": "get_confirmed", "name": "Confirmed objects", "description": "Get confirmed kepler objects", "parameters": False},
+             {"function": "get_kepler_name", "name": "FIX", "description": "Get koi object by searching their name", "parameters": True},
+             {"function": "", "name": "", "description": "", "parameters": False}]
 
 class Interface(Frame):
     def __init__(self, master=None):
@@ -35,21 +36,21 @@ class Interface(Frame):
         label = Label(self, text="Full name")
         label.grid(row=0,padx=5,pady=5,sticky=W)
         self.labels.append(label)
-        self.entry_name = Entry(self, width=40)
+        self.entry_name = Entry(self, width=30)
         self.entry_name.grid(row=0, column=1, sticky=E+W, pady=(10,5),padx=(0,5))
         self.entries.append(self.entry_name)
         # nickname
         label = Label(self, text="Username")
         label.grid(row=1,padx=5,pady=5,sticky=W)
         self.labels.append(label)
-        self.entry_uname = Entry(self, width=40)
+        self.entry_uname = Entry(self, width=30)
         self.entry_uname.grid(row=1, column=1, sticky=E+W, pady=(5,5),padx=(0,5))
         self.entries.append(self.entry_uname)
         # email
         label = Label(self, text="Email")
         label.grid(row=2,padx=5,pady=5,sticky=W)
         self.labels.append(label)
-        self.entry_email = Entry(self, width=40)
+        self.entry_email = Entry(self, width=30)
         self.entry_email.grid(row=2, column=1, sticky=E+W, pady=(5,5),padx=(0,5))
         self.entries.append(self.entry_email)
         # login error display
@@ -110,20 +111,23 @@ class Interface(Frame):
         logout_button.grid(row=0, column=3, pady=(5,5), padx=(5,5), sticky=N+S+E+W)
 
         # create parent for tabs
+        self.tabs = []
         tab_controller = ttk.Notebook(self.master)
 
         # create generals for each function
         for i in range(0, len(functions)-1):
             # create tab
             tab = ttk.Frame(tab_controller)
+            self.tabs.append(tab)
             tab_controller.add(tab, text=functions[i]["name"])
 
             # button to send server request
             ttk.Label(tab, text=functions[i]["description"]).grid(column=0,row=0,padx=5,pady=5,sticky=W)
-            ttk.Button(tab, text="Send request", command=lambda i=i, tab=tab: self.append_main_menu(functions[i], tab)).grid(column=3,row=0,padx=10,pady=5)
+            ttk.Button(tab, text="Send request", command=lambda i=i, tab=tab: self.append_main_menu(functions[i], tab)).grid(column=3,row=1,padx=10,pady=5)
 
-            self.server_response = StringVar()
-            label = Label(self, textvariable=self.server_response).grid(column=0, row=1,padx=5,pady=5,sticky=W)
+        Label(self.tabs[1], text="Name to search").grid(column=0,row=1,padx=5,pady=5,sticky=W)
+        self.search_name_entry = Entry(self.tabs[1], width=25)
+        self.search_name_entry.grid(column=1,row=1,pady=5)
 
         # visualise tabs
         tab_controller.pack(expand=1, fill="both")
@@ -131,9 +135,14 @@ class Interface(Frame):
     # function request
     def function_request(self, function, parameters=None):
         logging.debug(f"Function: {function}")
+        logging.debug(f"Paramenters: {parameters}")
 
         # send data
         command = f"{function}?"
+        if parameters:
+            if function == "get_kepler_name":
+                command += f"name={self.search_name_entry.get()}"
+
         self.client.send_data(command)
 
         # receive data and process
@@ -156,6 +165,8 @@ class Interface(Frame):
             for item in data["kepler_name"]:
                 self.datalst.insert(END, item)
             self.datalst.bind('<<ListboxSelect>>', self.onselect_confirmed)
+        elif function['function'] == "get_kepler_name":
+            logging.debug(data)
 
     def onselect_confirmed(self, event):
         index = int(self.datalst.curselection()[0])
