@@ -8,7 +8,7 @@ import pandas as pd
 from .client import Client
 
 functions = [{"function": "get_confirmed", "name": "Confirmed objects", "description": "Get confirmed kepler objects", "parameters": False},
-             {"function": "get_kepler_name", "name": "FIX", "description": "Get koi object by searching their name", "parameters": True},
+             {"function": "get_kepler_name", "name": "Search kepler names", "description": "Get koi object by searching their name", "parameters": True},
              {"function": "", "name": "", "description": "", "parameters": False}]
 
 class Interface(Frame):
@@ -123,11 +123,14 @@ class Interface(Frame):
 
             # button to send server request
             ttk.Label(tab, text=functions[i]["description"]).grid(column=0,row=0,padx=5,pady=5,sticky=W)
-            ttk.Button(tab, text="Send request", command=lambda i=i, tab=tab: self.append_main_menu(functions[i], tab)).grid(column=3,row=1,padx=10,pady=5)
+            sep = ttk.Separator(tab,orient='horizontal')
+            sep.grid(column=0,columnspan=4,row=1,sticky=W+E)
+            ttk.Button(tab, text="Send request", command=lambda i=i, tab=tab: self.append_main_menu(functions[i], tab)).grid(column=3,row=2,padx=10,pady=5,sticky=E)
 
-        Label(self.tabs[1], text="Name to search").grid(column=0,row=1,padx=5,pady=5,sticky=W)
+
+        Label(self.tabs[1], text="Name to search").grid(column=0,row=2,padx=5,pady=5,sticky=W)
         self.search_name_entry = Entry(self.tabs[1], width=25)
-        self.search_name_entry.grid(column=1,row=1,pady=5)
+        self.search_name_entry.grid(column=1,row=2,pady=5)
 
         # visualise tabs
         tab_controller.pack(expand=1, fill="both")
@@ -153,20 +156,18 @@ class Interface(Frame):
     def append_main_menu(self, function, tab):
         data = self.function_request(function['function'], function['parameters'])
 
-        if function['function'] == "get_confirmed":
+        if function['function'] == "get_confirmed" or function['function'] == "get_kepler_name":
             # add listbox + scrollbar
             self.scrollbar = Scrollbar(tab, orient=VERTICAL)
             self.datalst = Listbox(tab, yscrollcommand=self.scrollbar.set)
             self.scrollbar.config(command=self.datalst.yview)
 
-            self.datalst.grid(column=0, row=1,padx=5,pady=5)
-            self.scrollbar.grid(column=0,row=1,sticky=N+S+E)
+            self.datalst.grid(column=0, row=3,padx=5,pady=5)
+            self.scrollbar.grid(column=0,row=3,sticky=N+S+E)
 
             for item in data["kepler_name"]:
                 self.datalst.insert(END, item)
             self.datalst.bind('<<ListboxSelect>>', self.onselect_confirmed)
-        elif function['function'] == "get_kepler_name":
-            logging.debug(data)
 
     def onselect_confirmed(self, event):
         index = int(self.datalst.curselection()[0])
