@@ -7,9 +7,9 @@ import pickle
 import pandas as pd
 from .client import Client
 
-functions = [{"function": "get_confirmed", "name": "Confirmed objects", "description": "Get confirmed kepler objects", "parameters": False},
-             {"function": "get_kepler_name", "name": "Search kepler names", "description": "Get kepler object by searching its name", "parameters": True},
-             {"function": "get_koi_score", "name": "FIX", "description": "Search based on certainty that koi object is a kepler object", "parameters": True},
+functions = [{"function": "confirmed", "name": "Confirmed objects", "description": "Get confirmed kepler objects", "parameters": False},
+             {"function": "kepler_name", "name": "Search kepler names", "description": "Get kepler object by searching its name", "parameters": True},
+             {"function": "koi_score", "name": "FIX", "description": "Search based on certainty that koi object is a kepler object", "parameters": True},
              {"function": "", "name": "", "description": "", "parameters": False}]
 
 class Interface(Frame):
@@ -154,9 +154,9 @@ class Interface(Frame):
         # send data
         command = f"{function}?"
         if parameters:
-            if function == "get_kepler_name":
+            if function == "kepler_name":
                 command += f"name={self.search_name_entry.get()}"
-            elif function == "get_koi_score":
+            elif function == "koi_score":
                 search_dict = {'select search type': "lt", 'less then': "lt", 'less then or equal to': "le", 'equal':"eq", 'greater then or equal to': "ge", 'greater then':"gt"}
                 command += f"score={self.search_score_entry.get()}&operand={search_dict[self.search_score_cbo.get()]}"
 
@@ -171,7 +171,9 @@ class Interface(Frame):
     def append_main_menu(self, function, tab):
         data = self.function_request(function['function'], function['parameters'])
 
-        if function['function'] == "get_confirmed" or function['function'] == "get_kepler_name" or function['function'] == "get_koi_score":
+        print(data)
+
+        if function['function'] == "confirmed" or function['function'] == "kepler_name" or function['function'] == "koi_score":
             # add listbox + scrollbar
             self.scrollbar = Scrollbar(tab, orient=VERTICAL)
             self.datalst = Listbox(tab, yscrollcommand=self.scrollbar.set)
